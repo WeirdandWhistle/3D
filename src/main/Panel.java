@@ -22,18 +22,17 @@ public class Panel extends JPanel implements Runnable {
 
 	public Dimension size = new Dimension(500, 500);
 	public Thread gameThread;
-	public Struct s = new Struct();
 
 	public Point3D[] points = {// Comment
-			s.new Point3D(-1.0, -1.0, -1.0), s.new Point3D(-1.0, -1.0, 1.0),
-			s.new Point3D(1.0, -1.0, -1.0), s.new Point3D(-1.0, 1.0, -1.0),
-			s.new Point3D(-1.0, 1.0, 1.0), s.new Point3D(1.0, -1.0, 1.0),
-			s.new Point3D(1.0, 1.0, -1.0), s.new Point3D(1.0, 1.0, 1.0)};
+			new Point3D(-1.0, -1.0, -1.0), new Point3D(-1.0, -1.0, 1.0), // Comment
+			new Point3D(1.0, -1.0, -1.0), new Point3D(-1.0, 1.0, -1.0), // Comment
+			new Point3D(-1.0, 1.0, 1.0), new Point3D(1.0, -1.0, 1.0), // Comment
+			new Point3D(1.0, 1.0, -1.0), new Point3D(1.0, 1.0, 1.0)};// Comment
 	public Edge edges[] = { // Comment
-			s.new Edge(0, 1), s.new Edge(0, 2), s.new Edge(0, 3), // Comment
-			s.new Edge(2, 5), s.new Edge(3, 6), s.new Edge(3, 4), // Comment
-			s.new Edge(4, 7), s.new Edge(6, 7), s.new Edge(7, 5), // Comment
-			s.new Edge(5, 1), s.new Edge(4, 1), s.new Edge(2, 6)};
+			new Edge(0, 1), new Edge(0, 2), new Edge(0, 3), // Comment
+			new Edge(2, 5), new Edge(3, 6), new Edge(3, 4), // Comment
+			new Edge(4, 7), new Edge(6, 7), new Edge(7, 5), // Comment
+			new Edge(5, 1), new Edge(4, 1), new Edge(2, 6)};
 
 	public Panel() {
 		this.setPreferredSize(size);
@@ -49,11 +48,10 @@ public class Panel extends JPanel implements Runnable {
 		g2d.fillRect(0, 0, size.width, size.width);
 
 		g2d.setColor(Color.white);
-		System.out.println(rot);
 		for (int i = 0; i < edges.length; i++) {
-			Point3D startPoint = s.toPoint3D(MathUtil.Mat
+			Point3D startPoint = Struct.toPoint3D(MathUtil.Mat
 					.rotX(MathUtil.Mat.rotY(points[edges[i].start].getMat(), rot), rot));
-			Point3D endPoint = s.toPoint3D(
+			Point3D endPoint = Struct.toPoint3D(
 					MathUtil.Mat.rotX(MathUtil.Mat.rotY(points[edges[i].end].getMat(), rot), rot));
 
 			Point2D start = this.projection(startPoint);
@@ -64,7 +62,7 @@ public class Panel extends JPanel implements Runnable {
 		}
 	}
 	public Point2D projection(Point3D point) {
-		return s.new Point2D(MathUtil.pCord(point.x, FOV, point.z) * 100 + 250,
+		return new Point2D(MathUtil.pCord(point.x, FOV, point.z) * 100 + 250,
 				MathUtil.pCord(point.y, FOV, point.z) * 100 + 250);
 	}
 
