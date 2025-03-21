@@ -1,25 +1,107 @@
 package mathUtil;
 
 public class Struct {
+	public static class obj {
+		public Double[][] scale, transformMat, mat;
+		public Double[] translationVec, scaleVec, rotationVec;
+		public Point3D[] points;
+		public Double rotaion = 0.0;
+
+		public obj(Point3D[] points) {
+			translationVec = new Double[]{1.0, 1.0, 1.0};
+			rotationVec = new Double[]{1.0, 1.0, 1.0};
+			scaleVec = new Double[]{1.0, 1.0, 1.0};
+			transformMat = MathUtil.Mat.getIdentity();
+
+			this.points = points;
+		}
+		public obj(Point3D[] points, Double[] translationVec, Double[] rotationVec,
+				Double[] scaleVec) {
+			this.translationVec = translationVec;
+			this.rotationVec = rotationVec;
+			this.scaleVec = scaleVec;
+			transformMat = MathUtil.Mat.getIdentity();
+
+			this.points = points;
+		}
+
+		public Double[][] mat4() {
+			final Double c3 = Math.cos(rotationVec[2]);
+			final Double s3 = Math.sin(rotationVec[2]);
+			final Double c2 = Math.cos(rotationVec[0]);
+			final Double s2 = Math.sin(rotationVec[0]);
+			final Double c1 = Math.cos(rotationVec[1]);
+			final Double s1 = Math.sin(rotationVec[1]);
+			Double[][] mat4 = {{// Comment
+					scaleVec[0] * (c1 * c3 + s1 * s2 * s3), // Comment
+					scaleVec[0] * (c2 * s3), // Comment
+					scaleVec[0] * (c1 * s2 * s3 - c3 * s1), // Comment
+					0.0,// Comment
+					}, // Comment
+					{// Comment
+							scaleVec[1] * (c3 * s1 * s2 - c1 * s3), // Comment
+							scaleVec[1] * (c2 * c3), // Comment
+							scaleVec[1] * (c1 * c3 * s2 + s1 * s3), // Comment
+							0.0,// Comment
+					}, // Comment
+					{// Comment
+							scaleVec[2] * (c2 * s1), // Comment
+							scaleVec[2] * (-s2), // Comment
+							scaleVec[2] * (c1 * c2), // Comment
+							0.0,// Comment
+					}, // Comment
+					{translationVec[0], translationVec[1], translationVec[2], 1.0}};// Comment
+			return mat4;
+		}// Comment
+		public void rotate(Double x, Double y, Double z) {
+			rotationVec = new Double[]{x, y, z};
+		}
+	}
 
 	public static class Point3D {
-		public Double x, y, z;
+		public Double x, y, z, w;
 
 		public Point3D(Double x, Double y, Double z) {
 			this.x = x;
 			this.y = y;
 			this.z = z;
+			this.w = 1.0;
+		}
+		public Point3D(Double x, Double y, Double z, Double w) {
+			this.x = x;
+			this.y = y;
+			this.z = z;
+			this.w = w;
 		}
 		public Double[][] getMat() {
-			return new Double[][]{{x, y, z}};
+			return new Double[][]{{x, y, z, w}};
+		}
+
+		public Point3D sub(Point3D a) {
+			return new Point3D(x - a.x, y - a.y, z - a.z);
+			// return new Point3D(Struct.toPoint3D(MathUtil.Mat.sub(getMat(),
+			// a.getMat())));
+		}
+		public Point3D normalize() {
+			if (w != 0) {
+				return new Point3D(x / w, y / w, z / w);
+			}
+			return this; // Return the point unchanged if w is 0 (avoid division
+							// by zero)
 		}
 
 	}
 	public static class Point2D {
-		public Double x, y;
+		public Double x, y, w;
 		public Point2D(Double x, Double y) {
 			this.x = x;
 			this.y = y;
+			this.w = 1.0;
+		}
+		public Point2D(Double x, Double y, Double w) {
+			this.x = x;
+			this.y = y;
+			this.w = w;
 		}
 	}
 	public static class Edge {
