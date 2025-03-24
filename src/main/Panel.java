@@ -19,11 +19,12 @@ public class Panel extends JPanel implements Runnable {
 
 	public int gameTicks = 60;
 	public Double FOV = 100.0;
-	public Double nearPlane = 0.05;
-	public Double farPlane = 100.0;
+	public Double nearPlane = 0.01;
+	public Double farPlane = 10.0;
 	public Double[] ones = {1.0, 1.0, 1.0};
 	public double rot = 0;
 	public double slow = 0.01;
+	// public DoubleSupplier x;
 
 	public Dimension size = new Dimension(500, 500);
 	public Thread gameThread;
@@ -40,8 +41,8 @@ public class Panel extends JPanel implements Runnable {
 			new Edge(2, 5), new Edge(3, 6), new Edge(3, 4), // Comment
 			new Edge(4, 7), new Edge(6, 7), new Edge(7, 5), // Comment
 			new Edge(5, 1), new Edge(4, 1), new Edge(2, 6)};
-	public obj obj = new obj(points, new Double[]{0.0, 0.0, 0.0}, new Double[]{0.0, 2 * 3.14, 0.0},
-			ones);
+	public obj obj = new obj(points, new Double[]{0.0, 0.0, 0.0}, new Double[]{0.0, 0.0, 0.0},
+			new Double[]{0.5, 0.5, 0.5});
 
 	public Panel() {
 		this.setPreferredSize(size);
@@ -59,10 +60,14 @@ public class Panel extends JPanel implements Runnable {
 		// MathUtil.Mat.print(obj.transformMat);
 		Double[][] mat = obj.mat4();
 		// MathUtil.Mat.print("paint: ", mat);
+		// cam.orthographicProjection(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+		cam.perspectiveProjection(Math.toRadians(50), 1.0, nearPlane, farPlane);
+
+		mat = MathUtil.Mat.multi(mat, cam.mat4());
 
 		for (int i = 0; i < edges.length; i++) {
-			Point3D startPoint = obj.points[edges[i].start].sub(cam.pos);
-			Point3D endPoint = obj.points[edges[i].end].sub(cam.pos);
+			Point3D startPoint = obj.points[edges[i].start];
+			Point3D endPoint = obj.points[edges[i].end];
 			// MathUtil.Mat.print("for loop: ", mat);
 			startPoint = Struct.toPoint3D(MathUtil.Mat.multi(startPoint.getMat(), mat));
 			endPoint = Struct.toPoint3D(MathUtil.Mat.multi(endPoint.getMat(), mat));
@@ -93,7 +98,7 @@ public class Panel extends JPanel implements Runnable {
 		this.repaint();
 		keys.update();
 		rot += slow;
-		obj.rotate(0.0, rot, 0.0);
+		obj.rotate(rot, rot / 2, 0.0);
 	}
 
 	public void startGameThread() {

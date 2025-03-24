@@ -88,6 +88,8 @@ public class MathUtil {
 
 		public static Double[][] getPerspectiveProjection(Double fovy, Double aspect, Double near,
 				Double far) {
+			assert Math.abs(aspect - Float.MIN_VALUE) > 0.0f;
+
 			final Double tanHalfFovy = Math.tan(fovy / 2.f);
 			Double[][] projectionMatrix = getIdentity();
 			projectionMatrix[0][0] = 1.0 / (aspect * tanHalfFovy);
