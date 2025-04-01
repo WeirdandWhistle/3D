@@ -1,5 +1,7 @@
 package mathUtil;
 
+import java.awt.Color;
+
 public class Struct {
 	public static class obj {
 		public Double[][] scale, transformMat, mat;
@@ -110,9 +112,65 @@ public class Struct {
 			this.start = start;
 			this.end = end;
 		}
+
 	}
+	public static class Face {
+		private Color color;
+		public int[] indices;
+		public boolean fill = true;
+		public Double avgZ;
+		public Face(int[] indices) {
+			this.indices = indices;
+			color = Color.white;
+		}
+		public Face(int[] indices, Color color) {
+			this.indices = indices;
+			this.color = color;
+		}
+		public int getIndex(int index) {
+			return indices[index];
+		}
+		public Color getColor() {
+			return color;
+		}
+		public void setColor(Color color) {
+			this.color = color;
+		}
+	}
+	public static class Pixel {
+		public Double zedBuffer = 10000.0;
+		public Color color = Color.green;
+
+		public Pixel(Double zedBuffer) {
+			this.zedBuffer = zedBuffer;
+			color = Color.yellow;
+		}
+		public Pixel(Double zedBuffer, Color color) {
+			this.zedBuffer = zedBuffer;
+			this.color = color;
+		}
+	}
+
 	public static Point3D toPoint3D(Double[][] mat) {
 		return new Point3D(mat[0][0], mat[0][1], mat[0][2]);
+	}
+	public static int[] toPointsX(Point2D[] array) {
+		return new int[]{(int) array[0].x.doubleValue(), (int) array[1].x.doubleValue(),
+				(int) array[2].x.doubleValue()};
+	}
+	public static int[] toPointsX(Point2D a, Point2D b, Point2D c) {
+		Point2D[] array = {a, b, c};
+		return new int[]{(int) array[0].x.doubleValue(), (int) array[1].x.doubleValue(),
+				(int) array[2].x.doubleValue()};
+	}
+	public static int[] toPointsY(Point2D[] array) {
+		return new int[]{(int) array[0].y.doubleValue(), (int) array[1].y.doubleValue(),
+				(int) array[2].y.doubleValue()};
+	}
+	public static int[] toPointsY(Point2D a, Point2D b, Point2D c) {
+		Point2D[] array = {a, b, c};
+		return new int[]{(int) array[0].y.doubleValue(), (int) array[1].y.doubleValue(),
+				(int) array[2].y.doubleValue()};
 	}
 
 }

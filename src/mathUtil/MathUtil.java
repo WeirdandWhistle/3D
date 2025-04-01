@@ -1,5 +1,7 @@
 package mathUtil;
 
+import mathUtil.Struct.Point2D;
+
 public class MathUtil {
 
 	public class Mat {
@@ -204,7 +206,100 @@ public class MathUtil {
 			}
 		}
 	}
+	public static class tri {
+		// Function to compute the area of a triangle using the determinant
+		// method
+		static double triangleArea(Point2D p1, Point2D p2, Point2D p3) {
+			return 0.5
+					* Math.abs(p1.x * (p2.y - p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y));
+		}
+
+		// Function to check if a point (px, py) lies inside the triangle ABC
+		// using barycentric coordinates
+		static boolean isPointInsideTriangle(Point2D A, Point2D B, Point2D C, double px,
+				double py) {
+			// Calculate area of the full triangle
+			double areaABC = triangleArea(A, B, C);
+
+			// Calculate areas of sub-triangles formed with the point (px, py)
+			double areaPAB = triangleArea(new Point2D(px, py), A, B);
+			double areaPBC = triangleArea(new Point2D(px, py), B, C);
+			double areaPCA = triangleArea(new Point2D(px, py), C, A);
+
+			// If sum of sub-areas is same as the area of the triangle, the
+			// point lies inside or on the edge
+			return areaABC - (areaPAB + areaPBC + areaPCA) < .05
+					&& areaABC - (areaPAB + areaPBC + areaPCA) > -.05;
+		}
+
+		// Function to compute all pixels within the triangle and return them as
+		// a 2D int array
+		public static int[][] getTrianglePixels(Point2D A, Point2D B, Point2D C, int width,
+				int height) {
+			// Initialize the result array to store the pixel values (1 for
+			// inside, 0 for outside)
+			int[][] pixels = new int[width][height];
+
+			// Get the bounding box of the triangle
+			int minX = (int) Math.min(A.x, Math.min(B.x, C.x));
+			int minY = (int) Math.min(A.y, Math.min(B.y, C.y));
+			int maxX = (int) Math.max(A.x, Math.max(B.x, C.x));
+			int maxY = (int) Math.max(A.y, Math.max(B.y, C.y));
+
+			// Iterate through all points in the bounding box
+			for (int x = minX; x < maxX; x++) {
+				for (int y = minY; y < maxY; y++) {
+					// Check if the point (x, y) is inside the triangle
+					if (x >= 0 && x < width && y >= 0 && y < height) { // Ensure
+																		// within
+																		// bounds
+						if (isPointInsideTriangle(A, B, C, x, y)) {
+							// Mark the pixel as inside the triangle (1 for
+							// inside)
+							pixels[x][y] = 1;
+						} else {
+							// Mark the pixel as outside the triangle (0 for
+							// outside)
+
+							pixels[x][y] = 0;
+
+						}
+					}
+				}
+			}
+
+			return pixels;
+		}
+	}
 	public static Double pCord(Double cord, Double FOV, Double z) {
 		return (cord * FOV) / (z + FOV);
+	}
+	// Method to initialize a 2D array to a given value
+	// public static void initialize2DArray(Pixel[][] array, int value) {
+	// for (int i = 0; i < array.length; i++) {
+	// for (int j = 0; j < array[i].length; j++) {
+	// array[i][j].zedBuffer = value; // Set each element to the given
+	// // value
+	// }
+	// }
+	// }
+
+	// Method to print a 2D array for visualization
+	public static void print2DArray(int[][] array) {
+		for (int i = 0; i < array.length; i++) {
+			for (int j = 0; j < array[i].length; j++) {
+				System.out.print(array[i][j] + " ");
+			}
+			System.out.println();
+		}
+	}
+	public static void print2DArray(String name, int[][] array) {
+		System.out.println(name + ": ");
+		for (int i = 0; i < array.length; i++) {
+			for (int j = 0; j < array[i].length; j++) {
+				System.out.print(array[i][j] + " ");
+			}
+			System.out.println();
+		}
 	}
 }
