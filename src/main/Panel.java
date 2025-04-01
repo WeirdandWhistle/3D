@@ -47,8 +47,14 @@ public class Panel extends JPanel implements Runnable {
 			new Edge(2, 5), new Edge(3, 6), new Edge(3, 4), // Comment
 			new Edge(4, 7), new Edge(6, 7), new Edge(7, 5), // Comment
 			new Edge(5, 1), new Edge(4, 1), new Edge(2, 6)};
-	public Face faces[] = {new Face(new int[]{0, 1, 2}, Color.red),
-			new Face(new int[]{1, 2, 5}, Color.red), new Face(new int[]{4, 5, 7}, Color.blue)};
+	public Face faces[] = {// commmmmmmmmmmeeeeeeeeennnnnnnnnntttttttt
+			new Face(new int[]{0, 1, 2}, Color.red), new Face(new int[]{1, 2, 5}, Color.red),
+			new Face(new int[]{3, 4, 6}, Color.orange), new Face(new int[]{7, 4, 6}, Color.orange),
+			new Face(new int[]{4, 5, 7}, Color.blue), new Face(new int[]{4, 5, 1}, Color.blue),
+			new Face(new int[]{0, 2, 3}, Color.green), new Face(new int[]{2, 3, 6}, Color.green),
+			new Face(new int[]{2, 6, 7}, Color.yellow), new Face(new int[]{2, 5, 7}, Color.yellow),
+			new Face(new int[]{3, 0, 1}, Color.white), new Face(new int[]{3, 4, 1}, Color.white)};
+
 	public obj obj = new obj(points, new Double[]{0.0, 0.0, 1.0}, new Double[]{0.0, 0.0, 0.0},
 			new Double[]{0.5, 0.5, 0.5});
 
@@ -98,14 +104,14 @@ public class Panel extends JPanel implements Runnable {
 
 			Point2D target;
 
-			if (a.z < b.z) {
-				if (a.z < c.z) {
+			if (a.z > b.z) {
+				if (a.z > c.z) {
 					target = A;
 				} else {
 					target = C;
 				}
 			} else {
-				if (b.z < c.z) {
+				if (b.z > c.z) {
 					target = B;
 				} else {
 					target = C;
@@ -150,11 +156,12 @@ public class Panel extends JPanel implements Runnable {
 			// System.out.println("loaded gamma");
 
 			Double zed = (alpha * (a.z * 100 + 250))// comment
-					// sthing
 					+ (beta * (b.z * 100 + 250))// comment sthing
 					+ (gamma * (c.z * 100 + 250));
 
 			zed = Math.floor(zed + 1);
+
+			zed = a.z + b.z + c.z / 3;
 
 			int renderTri[][] = MathUtil.tri.getTrianglePixels(new Point2D(A.x - minx, A.y - miny),
 					new Point2D(B.x - minx, B.y - miny), new Point2D(C.x - minx, C.y - miny),
@@ -189,8 +196,6 @@ public class Panel extends JPanel implements Runnable {
 							zBuffer[x][y] = new Pixel(zed, faces[j].getColor());
 							// System.out.println("yessssir!!!!");
 							this.reportError("none", 5);
-						} else {
-							this.reportError("if stats breaking", 8);
 						}
 					} else {
 						// System.out.println("naddadaa");
@@ -233,7 +238,7 @@ public class Panel extends JPanel implements Runnable {
 			Point2D start = this.projectionB(startPoint);
 			Point2D end = this.projectionB(endPoint);
 
-			g2d.setColor(Color.WHITE);
+			g2d.setColor(Color.MAGENTA);
 
 			g2d.drawLine((int) start.x.doubleValue(), (int) start.y.doubleValue(), // Comment
 					(int) end.x.doubleValue(), (int) end.y.doubleValue());
