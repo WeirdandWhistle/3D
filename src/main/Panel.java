@@ -65,6 +65,8 @@ public class Panel extends JPanel implements Runnable {
 	}
 
 	public void paint(Graphics g) {
+		long beginTime = System.currentTimeMillis();
+		long endTime = System.currentTimeMillis();
 		super.paint(g);
 		Graphics2D g2d = (Graphics2D) g;
 
@@ -214,6 +216,7 @@ public class Panel extends JPanel implements Runnable {
 			// MathUtil.print2DArray("renderTri", renderTri);
 
 		}
+		beginTime = System.currentTimeMillis();
 		for (int x = 0; x < zBuffer.length; x++) {
 			for (int y = 0; y < zBuffer[0].length; y++) {
 				if (zBuffer[x][y] != null) {
@@ -228,6 +231,7 @@ public class Panel extends JPanel implements Runnable {
 				}
 			}
 		}
+		endTime = System.currentTimeMillis();
 		for (int i = 0; i < edges.length; i++) {
 			Point3D startPoint = obj.points[edges[i].start];
 			Point3D endPoint = obj.points[edges[i].end];
@@ -245,6 +249,10 @@ public class Panel extends JPanel implements Runnable {
 
 		}
 		FPS++;
+		endTime = System.currentTimeMillis();
+		System.out.println("time to render: " + (endTime - beginTime));
+		System.out.println("size of zBuffer: " + (zBuffer.length * zBuffer[0].length));
+		System.out.println("current thread: " + Thread.currentThread());
 	}
 	public Point2D projectionA(Point3D point) {
 		return new Point2D(MathUtil.pCord(point.x, FOV, point.z) * 100 + 250,
