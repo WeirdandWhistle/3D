@@ -228,14 +228,19 @@ public class Panel extends JPanel implements Runnable {
 
 			}
 			timeBegin = System.currentTimeMillis();
-			Color defaultColor = new Color(100, 100, 100, 10);
+			// Color defaultColor = new Color(100, 100, 100, 10);
 			for (int x = 0; x < zBuffer.length; x++) {
 				for (int y = 0; y < zBuffer[0].length; y++) {
-
-					g2d.setColor(
-							zBuffer[x][y].zedBuffer > 10000 ? defaultColor : zBuffer[x][y].color);
-					g2d.drawRect(x, y, 1, 1);
-
+					if (zBuffer[x][y] != null) {
+						// System.out.println("zbuffer z" +
+						// zBuffer[x][y].zedBuffer);
+						g2d.setColor(zBuffer[x][y].zedBuffer > 10000 || zBuffer[x][y].zedBuffer < 0
+								? new Color(100, 100, 100, 0)
+								: zBuffer[x][y].color);
+						g2d.drawRect(x, y, 1, 1);
+					} else {
+						this.reportError("raserization zBuffer null", 1000);
+					}
 				}
 			}
 			timeEnd = System.currentTimeMillis();
@@ -260,6 +265,7 @@ public class Panel extends JPanel implements Runnable {
 			// long timeEnd = System.currentTimeMillis();
 			// long timeEnd
 			System.out.println("time took to render: " + (timeEnd - timeBegin));
+			System.out.println("currentThread: " + Thread.currentThread());
 		}
 	}
 	public void drawToScreen() {
@@ -297,9 +303,6 @@ public class Panel extends JPanel implements Runnable {
 			update();
 			renderFrame();
 			drawToScreen();
-
-			t++;
-			System.out.println(t);
 
 			try {
 
