@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
 
@@ -19,7 +20,7 @@ import ui.KeyHandler;
 
 public class Panel extends JPanel implements Runnable {
 
-	public int gameTicks = 120;
+	public int gameTicks = 60;
 	public Double FOV = 100.0;
 	public Double nearPlane = 0.01;
 	public Double farPlane = 10.0;
@@ -30,12 +31,16 @@ public class Panel extends JPanel implements Runnable {
 	public int FPS = 0;
 	public String error = null;
 	public int errorVal = 0;
-	// public DoubleSupplier x;
+	private int t = 0;
 
 	public Dimension size = new Dimension(500, 500);
 	public Thread gameThread;
+
 	public Camera cam = new Camera(new Point3D(0.0, 0.0, 0.0), new Point3D(0.0, 0.0, 0.0));
 	public KeyHandler keys = new KeyHandler(this);
+	public BufferedImage frame = new BufferedImage(size.width, size.height,
+			BufferedImage.TYPE_INT_ARGB);
+	public Graphics2D g2d = frame.createGraphics();
 
 	public Point3D[] points = {// Comment
 			new Point3D(-1.0, -1.0, -1.0), new Point3D(-1.0, -1.0, 1.0), // Comment
@@ -63,16 +68,15 @@ public class Panel extends JPanel implements Runnable {
 		this.startGameThread();
 
 	}
+	public void renderFrame() {
+		long timeBegin = System.currentTimeMillis();
+		long timeEnd = System.currentTimeMillis();
+		g2d.setColor(Color.PINK);
 
-	public void paint(Graphics g) {
-		long beginTime = System.currentTimeMillis();
-		long endTime = System.currentTimeMillis();
-		super.paint(g);
-		Graphics2D g2d = (Graphics2D) g;
-
-		g2d.setColor(Color.black);
 		g2d.fillRect(0, 0, size.width, size.width);
-		// System.out.println("cam pos: " + cam.pos.x + ", " + cam.pos.y + "," +
+		// System.out.println("cam pos: " + cam.pos.x + ", " + cam.pos.y
+		// +
+		// "," +
 		// cam.pos.z);
 		// MathUtil.Mat.print(obj.transformMat);
 		Double[][] mat = obj.mat4();
@@ -84,14 +88,15 @@ public class Panel extends JPanel implements Runnable {
 
 		Pixel zBuffer[][] = new Pixel[size.width][size.height];
 
-		// Initialize each element with a default Pixel (e.g., with an initial
+		// Initialize each element with a default Pixel (e.g., with an
+		// initial
 		// z-value)
 		for (int x = 0; x < zBuffer.length; x++) {
 			for (int y = 0; y < zBuffer[0].length; y++) {
-				zBuffer[x][y] = new Pixel(10000.0, new Color(100, 100, 100, 0)); // Initiali
+				zBuffer[x][y] = new Pixel(10000.0, new Color(100, 100, 100, 100)); // Initiali
 			}
 		}
-		beginTime = System.currentTimeMillis();
+
 		for (int j = 0; j < faces.length; j++) {
 
 			Point3D a = obj.points[faces[j].getIndex(0)];
@@ -138,14 +143,18 @@ public class Panel extends JPanel implements Runnable {
 
 			// g2d.setColor(Color.pink);
 			// g2d.drawRect(minx, miny, maxx - minx, maxy - miny);
-			// System.out.println("minx: " + minx + ", miny: " + miny + ", maxx:
+			// System.out.println("minx: " + minx + ", miny: " + miny +
+			// ",
+			// maxx:
 			// " + maxx + ", maxy: "
 			// + maxy + " , color: " + faces[j].getColor());
 			// g2d.setColor(Color.yellow);
 			// g2d.fillPolygon(
-			// new int[]{(int) A.x.doubleValue(), (int) B.x.doubleValue(),
+			// new int[]{(int) A.x.doubleValue(), (int)
+			// B.x.doubleValue(),
 			// (int) C.x.doubleValue()},
-			// new int[]{(int) A.y.doubleValue(), (int) B.y.doubleValue(),
+			// new int[]{(int) A.y.doubleValue(), (int)
+			// B.y.doubleValue(),
 			// (int) C.y.doubleValue()},
 			// 3);
 
@@ -194,7 +203,8 @@ public class Panel extends JPanel implements Runnable {
 					}
 					// System.out.print(" ," + zBuffer[x][y].zedBuffer);
 					else if (renderTri[x - minx][y - miny] == 1) {
-						// System.out.println("zBuffer[x][y].zedBuffer: " +
+						// System.out.println("zBuffer[x][y].zedBuffer:
+						// " +
 						// zBuffer[x][y].zedBuffer);
 						if (zBuffer[x][y].zedBuffer > zed) {
 							zBuffer[x][y] = new Pixel(zed, faces[j].getColor());
@@ -218,23 +228,24 @@ public class Panel extends JPanel implements Runnable {
 			// MathUtil.print2DArray("renderTri", renderTri);
 
 		}
-		endTime = System.currentTimeMillis();
-		// beginTime = System.currentTimeMillis();
+
+		// timeBegin = System.currentTimeMillis();
+		// Color defaultColor = new Color(100, 100, 100, 10);
 		for (int x = 0; x < zBuffer.length; x++) {
 			for (int y = 0; y < zBuffer[0].length; y++) {
 				if (zBuffer[x][y] != null) {
-					// System.out.println("zbuffer z" +
-					// zBuffer[x][y].zedBuffer);
-					g2d.setColor(zBuffer[x][y].zedBuffer > 10000 || zBuffer[x][y].zedBuffer < 0
-							? new Color(100, 100, 100, 0)
-							: zBuffer[x][y].color);
-					g2d.fillRect(x, y, 1, 1);
+					// g2d.setColor();
+					// g2d.setColor(Color.yellow);
+					frame.setRGB(x, y,
+							(zBuffer[x][y].zedBuffer > 10000 || zBuffer[x][y].zedBuffer < 0
+									? new Color(100, 100, 100, 0)
+									: zBuffer[x][y].color).getRGB());
+
 				} else {
 					this.reportError("raserization zBuffer null", 1000);
 				}
 			}
 		}
-		// endTime = System.currentTimeMillis();
 		for (int i = 0; i < edges.length; i++) {
 			Point3D startPoint = obj.points[edges[i].start];
 			Point3D endPoint = obj.points[edges[i].end];
@@ -251,30 +262,35 @@ public class Panel extends JPanel implements Runnable {
 					(int) end.x.doubleValue(), (int) end.y.doubleValue());
 
 		}
+// 		timeEnd = System.currentTimeMillis();
+		// System.out.println("time took to render: " + (timeEnd - timeBegin));
+		// System.out.println("currentThread: " + Thread.currentThread());
+		// System.out.println("size of zBufer " + (zBuffer.length *
+		// zBuffer[0].length));
+
 		FPS++;
-		// endTime = System.currentTimeMillis();
-		System.out.println("time to render: " + (endTime - beginTime));
-		System.out.println("size of zBuffer: " + (zBuffer.length * zBuffer[0].length));
-		System.out.println("current thread: " + Thread.currentThread());
 	}
 	public Point2D projectionA(Point3D point) {
 		return new Point2D(MathUtil.pCord(point.x, FOV, point.z) * 100 + 250,
 				MathUtil.pCord(point.y, FOV, point.z) * 100 + 250);
 	}
-	public Point2D projectionB(Point3D point) {
-		return new Point2D(point.x * 100 + 250, point.y * 100 + 250);
+	public void drawToScreen() {
+		// System.out.println(this.getGraphics());
+		Graphics g = this.getGraphics();
+		// System.out.println(g)
+		// g.drawRect(0, 0, 300, 300);;
+		if (g != null) {
+			g.drawImage(frame, 0, 0, size.width, size.height, null);
+		}
+		FPS++;
 	}
 
 	public void update() {
-		this.repaint();
-		keys.update();
+
+		// keys.update();
 		rot += slow;
 		obj.rotate(rot, rot / 2, 0.0);
-	}
 
-	public void startGameThread() {
-		gameThread = new Thread(this);
-		gameThread.start();
 	}
 
 	@Override
@@ -293,6 +309,8 @@ public class Panel extends JPanel implements Runnable {
 			}
 
 			update();
+			renderFrame();
+			drawToScreen();
 
 			try {
 
@@ -312,6 +330,17 @@ public class Panel extends JPanel implements Runnable {
 			}
 		}
 
+	}
+	public void startGameThread() {
+		gameThread = new Thread(this);
+		gameThread.start();
+	}
+	public Point2D projectionA(Point3D point) {
+		return new Point2D(MathUtil.pCord(point.x, FOV, point.z) * 100 + 250,
+				MathUtil.pCord(point.y, FOV, point.z) * 100 + 250);
+	}
+	public Point2D projectionB(Point3D point) {
+		return new Point2D(point.x * 100 + 250, point.y * 100 + 250);
 	}
 	public void reportError(String error, int value) {
 
