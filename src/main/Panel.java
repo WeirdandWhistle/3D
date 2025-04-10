@@ -72,6 +72,7 @@ public class Panel extends JPanel implements Runnable {
 		long timeBegin = System.currentTimeMillis();
 		long timeEnd = System.currentTimeMillis();
 		g2d.setColor(Color.PINK);
+
 		g2d.fillRect(0, 0, size.width, size.width);
 		// System.out.println("cam pos: " + cam.pos.x + ", " + cam.pos.y
 		// +
@@ -97,6 +98,7 @@ public class Panel extends JPanel implements Runnable {
 		}
 
 		for (int j = 0; j < faces.length; j++) {
+
 			Point3D a = obj.points[faces[j].getIndex(0)];
 			Point3D b = obj.points[faces[j].getIndex(1)];
 			Point3D c = obj.points[faces[j].getIndex(2)];
@@ -226,6 +228,7 @@ public class Panel extends JPanel implements Runnable {
 			// MathUtil.print2DArray("renderTri", renderTri);
 
 		}
+
 		// timeBegin = System.currentTimeMillis();
 		// Color defaultColor = new Color(100, 100, 100, 10);
 		for (int x = 0; x < zBuffer.length; x++) {
@@ -237,12 +240,12 @@ public class Panel extends JPanel implements Runnable {
 							(zBuffer[x][y].zedBuffer > 10000 || zBuffer[x][y].zedBuffer < 0
 									? new Color(100, 100, 100, 0)
 									: zBuffer[x][y].color).getRGB());
+
 				} else {
 					this.reportError("raserization zBuffer null", 1000);
 				}
 			}
 		}
-
 		for (int i = 0; i < edges.length; i++) {
 			Point3D startPoint = obj.points[edges[i].start];
 			Point3D endPoint = obj.points[edges[i].end];
@@ -259,12 +262,17 @@ public class Panel extends JPanel implements Runnable {
 					(int) end.x.doubleValue(), (int) end.y.doubleValue());
 
 		}
-		timeEnd = System.currentTimeMillis();
+// 		timeEnd = System.currentTimeMillis();
 		// System.out.println("time took to render: " + (timeEnd - timeBegin));
 		// System.out.println("currentThread: " + Thread.currentThread());
 		// System.out.println("size of zBufer " + (zBuffer.length *
 		// zBuffer[0].length));
 
+		FPS++;
+	}
+	public Point2D projectionA(Point3D point) {
+		return new Point2D(MathUtil.pCord(point.x, FOV, point.z) * 100 + 250,
+				MathUtil.pCord(point.y, FOV, point.z) * 100 + 250);
 	}
 	public void drawToScreen() {
 		// System.out.println(this.getGraphics());
