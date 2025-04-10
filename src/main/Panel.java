@@ -262,17 +262,11 @@ public class Panel extends JPanel implements Runnable {
 					(int) end.x.doubleValue(), (int) end.y.doubleValue());
 
 		}
-// 		timeEnd = System.currentTimeMillis();
+		// timeEnd = System.currentTimeMillis();
 		// System.out.println("time took to render: " + (timeEnd - timeBegin));
 		// System.out.println("currentThread: " + Thread.currentThread());
 		// System.out.println("size of zBufer " + (zBuffer.length *
 		// zBuffer[0].length));
-
-		FPS++;
-	}
-	public Point2D projectionA(Point3D point) {
-		return new Point2D(MathUtil.pCord(point.x, FOV, point.z) * 100 + 250,
-				MathUtil.pCord(point.y, FOV, point.z) * 100 + 250);
 	}
 	public void drawToScreen() {
 		// System.out.println(this.getGraphics());
