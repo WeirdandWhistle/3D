@@ -226,22 +226,22 @@ public class Panel extends JPanel implements Runnable {
 			// MathUtil.print2DArray("renderTri", renderTri);
 
 		}
-		timeBegin = System.currentTimeMillis();
+		// timeBegin = System.currentTimeMillis();
 		// Color defaultColor = new Color(100, 100, 100, 10);
 		for (int x = 0; x < zBuffer.length; x++) {
 			for (int y = 0; y < zBuffer[0].length; y++) {
 				if (zBuffer[x][y] != null) {
-					g2d.setColor(zBuffer[x][y].zedBuffer > 10000 || zBuffer[x][y].zedBuffer < 0
-							? new Color(100, 100, 100, 0)
-							: zBuffer[x][y].color);
+					// g2d.setColor();
 					// g2d.setColor(Color.yellow);
-					g2d.fillRect(x, y, 1, 1);
+					frame.setRGB(x, y,
+							(zBuffer[x][y].zedBuffer > 10000 || zBuffer[x][y].zedBuffer < 0
+									? new Color(100, 100, 100, 0)
+									: zBuffer[x][y].color).getRGB());
 				} else {
 					this.reportError("raserization zBuffer null", 1000);
 				}
 			}
 		}
-		timeEnd = System.currentTimeMillis();
 
 		for (int i = 0; i < edges.length; i++) {
 			Point3D startPoint = obj.points[edges[i].start];
@@ -259,9 +259,11 @@ public class Panel extends JPanel implements Runnable {
 					(int) end.x.doubleValue(), (int) end.y.doubleValue());
 
 		}
-		System.out.println("time took to render: " + (timeEnd - timeBegin));
-		System.out.println("currentThread: " + Thread.currentThread());
-		System.out.println("size of zBufer " + (zBuffer.length * zBuffer[0].length));
+		timeEnd = System.currentTimeMillis();
+		// System.out.println("time took to render: " + (timeEnd - timeBegin));
+		// System.out.println("currentThread: " + Thread.currentThread());
+		// System.out.println("size of zBufer " + (zBuffer.length *
+		// zBuffer[0].length));
 
 	}
 	public void drawToScreen() {
