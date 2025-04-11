@@ -21,7 +21,7 @@ import ui.KeyHandler;
 public class Panel extends JPanel implements Runnable {
 
 	public int gameTicks = 60;
-	public Double FOV = 100.0;
+	public Double FOV = 10.0;
 	public Double nearPlane = 0.01;
 	public Double farPlane = 10.0;
 	public Double[] ones = {1.0, 1.0, 1.0};
@@ -96,11 +96,11 @@ public class Panel extends JPanel implements Runnable {
 		// reversing
 		// the
 		// order
-		MathUtil.print2DArray(mat);
-		System.out.println();
+
 		mat = MathUtil.Mat.multi(mat, projectionView);
-		MathUtil.print2DArray(mat);
-		System.out.println();
+
+		// System.out.println("cam z: " + viewObject.translationVec[2]);
+		// System.out.println("camMat z: " + projectionView[2][2]);
 
 		Pixel zBuffer[][] = new Pixel[size.width][size.height];
 
@@ -123,9 +123,9 @@ public class Panel extends JPanel implements Runnable {
 			b = Struct.toPoint3D(MathUtil.Mat.multi(b.getMat(), mat));
 			c = Struct.toPoint3D(MathUtil.Mat.multi(c.getMat(), mat));
 
-			Point2D A = this.projectionB(a);
-			Point2D B = this.projectionB(b);
-			Point2D C = this.projectionB(c);
+			Point2D A = this.projectionA(a);
+			Point2D B = this.projectionA(b);
+			Point2D C = this.projectionA(c);
 
 			Point2D target;
 
@@ -269,8 +269,8 @@ public class Panel extends JPanel implements Runnable {
 			startPoint = Struct.toPoint3D(MathUtil.Mat.multi(startPoint.getMat(), mat));
 			endPoint = Struct.toPoint3D(MathUtil.Mat.multi(endPoint.getMat(), mat));
 
-			Point2D start = this.projectionB(startPoint);
-			Point2D end = this.projectionB(endPoint);
+			Point2D start = this.projectionA(startPoint);
+			Point2D end = this.projectionA(endPoint);
 
 			g2d.setColor(Color.MAGENTA);
 

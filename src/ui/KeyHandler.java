@@ -22,7 +22,7 @@ public class KeyHandler implements KeyListener {
 
 		if (up) {
 			rotation[0] += 1.0;
-			System.out.println("up");
+			// System.out.println("up");
 		}
 		if (down) {
 			rotation[0] -= 1.0;
@@ -45,6 +45,7 @@ public class KeyHandler implements KeyListener {
 		final Double[] upDir = {0.0, -1.0, 0.0};
 
 		Double[] moveDir = {0.0, 0.0, 0.0};
+		// System.out.println("z: " + forwardDir[2]);
 
 		if (w) {
 
@@ -84,7 +85,7 @@ public class KeyHandler implements KeyListener {
 		if (MathUtil.dot(vec3, vec3, 1) > 0) {
 			p.viewObject.rotationVec = MathUtil.vec3.add(p.viewObject.rotationVec,
 					MathUtil.vec3.scale(MathUtil.vec3.normalize(vec3), lookspeed));
-			System.out.println("turn");
+			// System.out.println("turn");
 		}
 	}
 
