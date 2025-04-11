@@ -26,6 +26,18 @@ public class Struct {
 
 			this.points = points;
 		}
+		public obj() {
+			translationVec = new Double[]{0.0, 0.0, 0.0};
+			rotationVec = new Double[]{0.0, 0.0, 0.0};
+			scaleVec = new Double[]{1.0, 1.0, 1.0};
+			transformMat = MathUtil.Mat.getIdentity();
+		}
+		public obj(Double[] transVec, Double[] rotaionVec) {
+			translationVec = new Double[]{1.0, 1.0, 1.0};
+			rotationVec = new Double[]{1.0, 1.0, 1.0};
+			scaleVec = new Double[]{1.0, 1.0, 1.0};
+			transformMat = MathUtil.Mat.getIdentity();
+		}
 
 		public Double[][] mat4() {
 			final Double c3 = Math.cos(rotationVec[2]);

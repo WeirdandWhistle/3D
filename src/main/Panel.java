@@ -37,6 +37,7 @@ public class Panel extends JPanel implements Runnable {
 	public Thread gameThread;
 
 	public Camera cam = new Camera();
+	public obj viewObject = new obj();
 	public KeyHandler keys = new KeyHandler(this);
 	public BufferedImage frame = new BufferedImage(size.width, size.height,
 			BufferedImage.TYPE_INT_ARGB);
@@ -83,18 +84,23 @@ public class Panel extends JPanel implements Runnable {
 		// "," +
 		// cam.pos.z);
 		// MathUtil.Mat.print(obj.transformMat);
+		cam.setViewXYZ(viewObject.translationVec, viewObject.rotationVec);
 		Double[][] mat = obj.mat4();
 		// MathUtil.Mat.print("paint: ", mat);
 		// cam.orthographicProjection(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
-		cam.perspectiveProjection(Math.toRadians(50), 1.0, nearPlane, farPlane);
+		cam.perspectiveProjection(Math.toRadians(50), (double) size.width / size.height, nearPlane,
+				farPlane);
 
 		Double[][] projectionView = MathUtil.Mat.multi(cam.getView(), cam.getProjection());
 		// try
 		// reversing
 		// the
 		// order
-
+		MathUtil.print2DArray(mat);
+		System.out.println();
 		mat = MathUtil.Mat.multi(mat, projectionView);
+		MathUtil.print2DArray(mat);
+		System.out.println();
 
 		Pixel zBuffer[][] = new Pixel[size.width][size.height];
 
@@ -292,6 +298,7 @@ public class Panel extends JPanel implements Runnable {
 	public void update() {
 
 		keys.update();
+
 		rot += slow;
 		// obj.rotate(rot, rot / 2, 0.0);
 

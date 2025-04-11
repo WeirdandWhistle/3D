@@ -337,6 +337,14 @@ public class MathUtil {
 			System.out.println();
 		}
 	}
+	public static void print2DArray(Double[][] array) {
+		for (int i = 0; i < array.length; i++) {
+			for (int j = 0; j < array[i].length; j++) {
+				System.out.print(array[i][j] + " ");
+			}
+			System.out.println();
+		}
+	}
 	public static void print2DArray(String name, int[][] array) {
 		System.out.println(name + ": ");
 		for (int i = 0; i < array.length; i++) {

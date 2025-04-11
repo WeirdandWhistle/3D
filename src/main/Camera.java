@@ -2,39 +2,21 @@ package main;
 import mathUtil.MathUtil;
 public class Camera {
 
-	public Double[] pos, angle;
+	public Double[] translationVec, rotationVec;
 	private Double[][] projectionMat4, viewMat4;
 
 	public Camera(Double[] pos, Double[] angle) {
-		this.pos = pos;
-		this.angle = angle;
+		this.translationVec = pos;
+		this.rotationVec = angle;
 		projectionMat4 = MathUtil.Mat.getIdentity();
 		viewMat4 = MathUtil.Mat.getIdentity();
 	}
 	public Camera() {
-		this.pos = new Double[]{0.0, 0.0, 0.0};
-		this.angle = new Double[]{0.0, 0.0, 0.0};
+		this.translationVec = new Double[]{0.0, 0.0, 0.0};
+		this.rotationVec = new Double[]{0.0, 0.0, 0.0};
 		projectionMat4 = MathUtil.Mat.getIdentity();
 		viewMat4 = MathUtil.Mat.getIdentity();
 	}
-	// public void scalePos(Double scale) {
-	// pos.x *= scale;
-	// pos.y *= scale;
-	// pos.z *= scale;
-	// }
-	// public Point3D scaledPos(Double scale) {
-	// return new Point3D(pos.x * scale, pos.y * scale, pos.z * scale);
-	// }
-	// public void moveX(Double amout) {
-	// pos.x += amout;
-	// }
-	// public void moveY(Double amout) {
-	// pos.y += amout;
-	// }
-	// public void moveZ(Double amout) {
-	// pos.z += amout;
-	// }
-
 	public void orthographicProjection(Double left, Double right, Double top, Double bottom,
 			Double near, Double far) {
 		projectionMat4 = MathUtil.Mat.getOrthographicProjection(left, right, top, bottom, near,
