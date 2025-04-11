@@ -7,7 +7,7 @@ public class Struct {
 		public Double[][] scale, transformMat, mat;
 		public Double[] translationVec, scaleVec, rotationVec;
 		public Point3D[] points;
-		public Double rotaion = 0.0;
+		// public Double rotaion = 0.0;
 
 		public obj(Point3D[] points) {
 			translationVec = new Double[]{1.0, 1.0, 1.0};

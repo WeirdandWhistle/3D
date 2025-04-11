@@ -36,7 +36,7 @@ public class Panel extends JPanel implements Runnable {
 	public Dimension size = new Dimension(500, 500);
 	public Thread gameThread;
 
-	public Camera cam = new Camera(new Point3D(0.0, 0.0, 0.0), new Point3D(0.0, 0.0, 0.0));
+	public Camera cam = new Camera();
 	public KeyHandler keys = new KeyHandler(this);
 	public BufferedImage frame = new BufferedImage(size.width, size.height,
 			BufferedImage.TYPE_INT_ARGB);
@@ -64,9 +64,13 @@ public class Panel extends JPanel implements Runnable {
 			new Double[]{0.5, 0.5, 0.5});
 
 	public Panel() {
+		cam.setViewDirection(new Double[]{0.0, 0.0, 0.0}, new Double[]{0.0, 0.0, 1.0},
+				new Double[]{0.0, -1.0, 0.0});
+		// cam.setViewTarget(new Double[]{-1.0, -2.0, 2.0}, new Double[]{0.0,
+		// 1.0, 0.0}, null);
+
 		this.setPreferredSize(size);
 		this.startGameThread();
-
 	}
 	public void renderFrame() {
 		long timeBegin = System.currentTimeMillis();
@@ -84,7 +88,13 @@ public class Panel extends JPanel implements Runnable {
 		// cam.orthographicProjection(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
 		cam.perspectiveProjection(Math.toRadians(50), 1.0, nearPlane, farPlane);
 
-		mat = MathUtil.Mat.multi(mat, cam.mat4());
+		Double[][] projectionView = MathUtil.Mat.multi(cam.getView(), cam.getProjection());
+		// try
+		// reversing
+		// the
+		// order
+
+		mat = MathUtil.Mat.multi(mat, projectionView);
 
 		Pixel zBuffer[][] = new Pixel[size.width][size.height];
 
@@ -281,9 +291,9 @@ public class Panel extends JPanel implements Runnable {
 
 	public void update() {
 
-		// keys.update();
+		keys.update();
 		rot += slow;
-		obj.rotate(rot, rot / 2, 0.0);
+		// obj.rotate(rot, rot / 2, 0.0);
 
 	}
 
@@ -334,7 +344,7 @@ public class Panel extends JPanel implements Runnable {
 				MathUtil.pCord(point.y, FOV, point.z) * 100 + 250);
 	}
 	public Point2D projectionB(Point3D point) {
-		return new Point2D(point.x * 100 + 250, point.y * 100 + 250);
+		return new Point2D(point.x * 100 + size.width / 2, point.y * 100 + size.height / 2);
 	}
 	public void reportError(String error, int value) {
 
