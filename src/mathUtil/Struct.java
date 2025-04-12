@@ -7,7 +7,7 @@ public class Struct {
 		public Double[][] scale, transformMat, mat;
 		public Double[] translationVec, scaleVec, rotationVec;
 		public Point3D[] points;
-		public Double rotaion = 0.0;
+		// public Double rotaion = 0.0;
 
 		public obj(Point3D[] points) {
 			translationVec = new Double[]{1.0, 1.0, 1.0};
@@ -25,6 +25,18 @@ public class Struct {
 			transformMat = MathUtil.Mat.getIdentity();
 
 			this.points = points;
+		}
+		public obj() {
+			translationVec = new Double[]{0.0, 0.0, 0.0};
+			rotationVec = new Double[]{0.0, 0.0, 0.0};
+			scaleVec = new Double[]{1.0, 1.0, 1.0};
+			transformMat = MathUtil.Mat.getIdentity();
+		}
+		public obj(Double[] transVec, Double[] rotaionVec) {
+			translationVec = new Double[]{1.0, 1.0, 1.0};
+			rotationVec = new Double[]{1.0, 1.0, 1.0};
+			scaleVec = new Double[]{1.0, 1.0, 1.0};
+			transformMat = MathUtil.Mat.getIdentity();
 		}
 
 		public Double[][] mat4() {

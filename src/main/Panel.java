@@ -36,7 +36,8 @@ public class Panel extends JPanel implements Runnable {
 	public Dimension size = new Dimension(500, 500);
 	public Thread gameThread;
 
-	public Camera cam = new Camera(new Point3D(0.0, 0.0, 0.0), new Point3D(0.0, 0.0, 0.0));
+	public Camera cam = new Camera();
+	public obj viewObject = new obj();
 	public KeyHandler keys = new KeyHandler(this);
 	public BufferedImage frame = new BufferedImage(size.width, size.height,
 			BufferedImage.TYPE_INT_ARGB);
@@ -64,9 +65,13 @@ public class Panel extends JPanel implements Runnable {
 			new Double[]{0.5, 0.5, 0.5});
 
 	public Panel() {
+		cam.setViewDirection(new Double[]{0.0, 0.0, 0.0}, new Double[]{0.0, 0.0, 1.0},
+				new Double[]{0.0, -1.0, 0.0});
+		// cam.setViewTarget(new Double[]{-1.0, -2.0, 2.0}, new Double[]{0.0,
+		// 1.0, 0.0}, null);
+		this.setFocusTraversalKeysEnabled(false);
 		this.setPreferredSize(size);
 		this.startGameThread();
-
 	}
 	public void renderFrame() {
 		long timeBegin = System.currentTimeMillis();
@@ -79,12 +84,23 @@ public class Panel extends JPanel implements Runnable {
 		// "," +
 		// cam.pos.z);
 		// MathUtil.Mat.print(obj.transformMat);
+		cam.setViewXYZ(viewObject.translationVec, viewObject.rotationVec);
 		Double[][] mat = obj.mat4();
 		// MathUtil.Mat.print("paint: ", mat);
 		// cam.orthographicProjection(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
-		cam.perspectiveProjection(Math.toRadians(50), 1.0, nearPlane, farPlane);
+		cam.perspectiveProjection(Math.toRadians(50), (double) size.width / size.height, nearPlane,
+				farPlane);
 
-		mat = MathUtil.Mat.multi(mat, cam.mat4());
+		Double[][] projectionView = MathUtil.Mat.multi(cam.getView(), cam.getProjection());
+		// try
+		// reversing
+		// the
+		// order
+
+		mat = MathUtil.Mat.multi(mat, projectionView);
+
+		// System.out.println("cam z: " + viewObject.translationVec[2]);
+		// System.out.println("camMat z: " + projectionView[2][2]);
 
 		Pixel zBuffer[][] = new Pixel[size.width][size.height];
 
@@ -107,9 +123,9 @@ public class Panel extends JPanel implements Runnable {
 			b = Struct.toPoint3D(MathUtil.Mat.multi(b.getMat(), mat));
 			c = Struct.toPoint3D(MathUtil.Mat.multi(c.getMat(), mat));
 
-			Point2D A = this.projectionB(a);
-			Point2D B = this.projectionB(b);
-			Point2D C = this.projectionB(c);
+			Point2D A = this.projectionA(a);
+			Point2D B = this.projectionA(b);
+			Point2D C = this.projectionA(c);
 
 			Point2D target;
 
@@ -253,8 +269,8 @@ public class Panel extends JPanel implements Runnable {
 			startPoint = Struct.toPoint3D(MathUtil.Mat.multi(startPoint.getMat(), mat));
 			endPoint = Struct.toPoint3D(MathUtil.Mat.multi(endPoint.getMat(), mat));
 
-			Point2D start = this.projectionB(startPoint);
-			Point2D end = this.projectionB(endPoint);
+			Point2D start = this.projectionA(startPoint);
+			Point2D end = this.projectionA(endPoint);
 
 			g2d.setColor(Color.MAGENTA);
 
@@ -281,9 +297,10 @@ public class Panel extends JPanel implements Runnable {
 
 	public void update() {
 
-		// keys.update();
+		keys.update();
+
 		rot += slow;
-		obj.rotate(rot, rot / 2, 0.0);
+		// obj.rotate(rot, rot / 2, 0.0);
 
 	}
 
@@ -334,7 +351,7 @@ public class Panel extends JPanel implements Runnable {
 				MathUtil.pCord(point.y, FOV, point.z) * 100 + 250);
 	}
 	public Point2D projectionB(Point3D point) {
-		return new Point2D(point.x * 100 + 250, point.y * 100 + 250);
+		return new Point2D(point.x * 100 + size.width / 2, point.y * 100 + size.height / 2);
 	}
 	public void reportError(String error, int value) {
 

@@ -238,6 +238,10 @@ public class MathUtil {
 				int height) {
 			// Initialize the result array to store the pixel values (1 for
 			// inside, 0 for outside)
+
+			if (width <= 0 || height <= 0) {
+				return new int[][]{{0}};
+			}
 			int[][] pixels = new int[width][height];
 
 			// Get the bounding box of the triangle
@@ -271,6 +275,46 @@ public class MathUtil {
 			return pixels;
 		}
 	}
+	public static class vec3 {
+		public static Double[] normalize(Double[] vec3) {
+
+			Double length_of_v = Math
+					.sqrt((vec3[0] * vec3[0]) + (vec3[1] * vec3[1]) + (vec3[2] * vec3[2]));
+			if (Math.abs(length_of_v) == 0) {
+				throw new IllegalArgumentException("vec3 cant be zero!");
+			}
+			return new Double[]{vec3[0] / length_of_v, vec3[1] / length_of_v,
+					vec3[2] / length_of_v};
+		}
+		public static Double[] cross(Double[] x, Double[] y) {
+			return new Double[]{// comment
+					x[1] * y[2] - y[1] * x[2]// commnet
+					, x[2] * y[0] - y[2] * x[0], // commnet
+					x[0] * y[1] - y[0] * x[1]};
+		}
+		public static Double[] sub(Double[] a, Double[] b) {
+			return new Double[]{a[0] - b[0], a[1] - b[1], a[2] - b[2]};
+		}
+		public static Double[] add(Double[] a, Double[] b) {
+			return new Double[]{a[0] + b[0], a[1] + b[1], a[2] + b[2]};
+		}
+		public static Double[] scale(Double[] a, Double factor) {
+			assert factor != 0 : "factor can be zero but you dont get a vector!";
+			return new Double[]{a[0] * factor, a[1] * factor, a[2] * factor};
+		}
+	}
+	public static Double dot(Double[] x, Double[] y, int sign) {
+		assert sign == 1 || sign == 0 : "sign can only be 1 or -1";
+		if (x.length != y.length) {
+			throw new IllegalArgumentException(
+					"x length(" + x.length + ") and y length(" + y.length + ") must be equal");
+		}
+		Double out = 0.0;
+		for (int i = 0; i < x.length; i++) {
+			out += (x[i] * y[i]) * sign;
+		}
+		return out;
+	}
 	public static Double pCord(Double cord, Double FOV, Double z) {
 		return (cord * FOV) / (z + FOV);
 	}
@@ -286,6 +330,14 @@ public class MathUtil {
 
 	// Method to print a 2D array for visualization
 	public static void print2DArray(int[][] array) {
+		for (int i = 0; i < array.length; i++) {
+			for (int j = 0; j < array[i].length; j++) {
+				System.out.print(array[i][j] + " ");
+			}
+			System.out.println();
+		}
+	}
+	public static void print2DArray(Double[][] array) {
 		for (int i = 0; i < array.length; i++) {
 			for (int j = 0; j < array[i].length; j++) {
 				System.out.print(array[i][j] + " ");
