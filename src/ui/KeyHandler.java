@@ -8,17 +8,21 @@ import mathUtil.MathUtil;
 
 public class KeyHandler implements KeyListener {
 
-	public boolean w, a, s, d, shift, crtl, space, up, down, left, right;
-	public Double startSpeed = 0.07;
-	public Double speed = startSpeed;
-	public Double sprintSpeed = speed * 1.5;
+	public boolean w, a, s, d, shift, crtl, space, up, down, left, right, tab;
 	private Panel p;
+	private Double moveSpeed = 0.1;
+	private Double sprintMoveSpeed = moveSpeed * 1.5;
+	private Double turnSpeed = 0.025;
 
 	public KeyHandler(Panel p) {
 		this.p = p;
 	}
 	public void update() {
 		Double rotation[] = {0.0, 0.0, 0.0};
+		Double moveSpeed = this.moveSpeed;
+		if (shift) {
+			moveSpeed = sprintMoveSpeed;
+		}
 
 		if (up) {
 			rotation[0] += 1.0;
@@ -33,7 +37,7 @@ public class KeyHandler implements KeyListener {
 		if (right) {
 			rotation[1] += 1.0;
 		}
-		lookVec3(rotation, 0.025);
+		lookVec3(rotation, turnSpeed);
 
 		p.viewObject.rotationVec[0] = Math.clamp(p.viewObject.rotationVec[0], -1.5, 1.5);
 		// p.viewObject.rotationVec[1] = p.viewObject.rotationVec[1] % (Math.PI
@@ -63,13 +67,13 @@ public class KeyHandler implements KeyListener {
 		if (space) {
 			moveDir = MathUtil.vec3.add(moveDir, upDir);
 		}
-		if (crtl) {
+		if (tab) {
 			moveDir = MathUtil.vec3.sub(moveDir, upDir);
 		}
 		if (MathUtil.dot(moveDir, moveDir, 1) > 0) {
 			moveDir = MathUtil.vec3.normalize(moveDir);
 			p.viewObject.translationVec = MathUtil.vec3.add(p.viewObject.translationVec,
-					MathUtil.vec3.scale(moveDir, 0.05));
+					MathUtil.vec3.scale(moveDir, moveSpeed));
 			// System.out.println("move: " + p.obj.translationVec[0] + ", " +
 			// p.obj.translationVec[1]
 			// + ", " + p.obj.translationVec[2] + ", ");
@@ -132,6 +136,9 @@ public class KeyHandler implements KeyListener {
 			case KeyEvent.VK_DOWN :
 				down = toggle;
 				break;
+			case KeyEvent.VK_TAB :
+				tab = toggle;
+				break;
 		}
 
 	}
@@ -172,6 +179,9 @@ public class KeyHandler implements KeyListener {
 				break;
 			case KeyEvent.VK_DOWN :
 				down = toggle;
+				break;
+			case KeyEvent.VK_TAB :
+				tab = toggle;
 				break;
 		}
 

@@ -21,7 +21,7 @@ import ui.KeyHandler;
 public class Panel extends JPanel implements Runnable {
 
 	public int gameTicks = 60;
-	public Double FOV = 10.0;
+	public Double FOV = 100.0;
 	public Double nearPlane = 0.01;
 	public Double farPlane = 10.0;
 	public Double[] ones = {1.0, 1.0, 1.0};
@@ -69,7 +69,7 @@ public class Panel extends JPanel implements Runnable {
 				new Double[]{0.0, -1.0, 0.0});
 		// cam.setViewTarget(new Double[]{-1.0, -2.0, 2.0}, new Double[]{0.0,
 		// 1.0, 0.0}, null);
-
+		this.setFocusTraversalKeysEnabled(false);
 		this.setPreferredSize(size);
 		this.startGameThread();
 	}
