@@ -54,11 +54,11 @@ public class Panel extends JPanel implements Runnable {
 			new Edge(4, 7), new Edge(6, 7), new Edge(7, 5), // Comment
 			new Edge(5, 1), new Edge(4, 1), new Edge(2, 6)};
 	public Face faces[] = {// commmmmmmmmmmeeeeeeeeennnnnnnnnntttttttt
-			new Face(new int[]{0, 1, 2}, Color.red), new Face(new int[]{1, 2, 5}, Color.red),
-			new Face(new int[]{3, 4, 6}, Color.orange), new Face(new int[]{7, 4, 6}, Color.orange),
-			new Face(new int[]{4, 5, 7}, Color.blue), new Face(new int[]{4, 5, 1}, Color.blue),
-			new Face(new int[]{0, 2, 3}, Color.green), new Face(new int[]{2, 3, 6}, Color.green),
-			new Face(new int[]{2, 6, 7}, Color.yellow), new Face(new int[]{2, 5, 7}, Color.yellow),
+			new Face(new int[]{0, 1, 5, 2}, Color.red),
+			new Face(new int[]{3, 4, 7, 6}, Color.orange),
+			new Face(new int[]{4, 1, 5, 7}, Color.blue),
+			new Face(new int[]{0, 2, 6, 3}, Color.green),
+			new Face(new int[]{2, 6, 7, 5}, Color.yellow),
 			new Face(new int[]{3, 0, 1, 4}, Color.white)};
 
 	public Obj obj = new Obj(points, new Double[]{0.0, 0.0, 3.0}, new Double[]{0.0, 0.0, 0.0},
