@@ -1,5 +1,5 @@
 package main;
-import mathUtil.MathUtil;
+import libs.MathUtil;
 public class Camera {
 
 	public Double[] translationVec, rotationVec;
