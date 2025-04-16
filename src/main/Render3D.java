@@ -57,8 +57,7 @@ public class Render3D {
 
 		Pixel zBuffer[][] = new Pixel[p.size.width][p.size.height];
 
-		Face[] polys = Util.Poly.getPolys(faces);
-		faces = Util.Poly.getTri(faces);
+		Face[] polys = faces;
 
 		// Initialize each element with a default Pixel (e.g., with an
 		// initial
@@ -69,136 +68,6 @@ public class Render3D {
 			}
 		}
 
-		for (int j = 0; j < faces.length; j++) {
-
-			Point3D a = obj.points[faces[j].getIndex(0)];
-			Point3D b = obj.points[faces[j].getIndex(1)];
-			Point3D c = obj.points[faces[j].getIndex(2)];
-
-			a = Struct.toPoint3D(MathUtil.Mat.multi(a.getMat(), mat));
-			b = Struct.toPoint3D(MathUtil.Mat.multi(b.getMat(), mat));
-			c = Struct.toPoint3D(MathUtil.Mat.multi(c.getMat(), mat));
-
-			Point2D A = p.projectionA(a);
-			Point2D B = p.projectionA(b);
-			Point2D C = p.projectionA(c);
-
-			Point2D target;
-
-			if (a.z > b.z) {
-				if (a.z > c.z) {
-					target = A;
-				} else {
-					target = C;
-				}
-			} else {
-				if (b.z > c.z) {
-					target = B;
-				} else {
-					target = C;
-				}
-			}
-
-			int minx = (int) Math.floor(Math.min(A.x, Math.min(B.x, C.x)));
-			int miny = (int) Math.floor(Math.min(A.y, Math.min(B.y, C.y)));
-			int maxx = (int) Math.ceil(Math.max(A.x, Math.max(B.x, C.x)));
-			int maxy = (int) Math.ceil(Math.max(A.y, Math.max(B.y, C.y)));
-
-			// Ensure the bounding box stays within screen bounds
-			minx = Math.max(minx, 0);
-			miny = Math.max(miny, 0);
-			maxx = Math.min(maxx, p.size.width - 1);
-			maxy = Math.min(maxy, p.size.height - 1);
-
-			maxx = Math.clamp(maxx, 0, p.size.width);
-			maxy = Math.clamp(maxy, 0, p.size.height);
-
-			// g2d.setColor(Color.pink);
-			// g2d.drawRect(minx, miny, maxx - minx, maxy - miny);
-			// System.out.println("minx: " + minx + ", miny: " + miny +
-			// ",
-			// maxx:
-			// " + maxx + ", maxy: "
-			// + maxy + " , color: " + faces[j].getColor());
-			// g2d.setColor(Color.yellow);
-			// g2d.fillPolygon(
-			// new int[]{(int) A.x.doubleValue(), (int)
-			// B.x.doubleValue(),
-			// (int) C.x.doubleValue()},
-			// new int[]{(int) A.y.doubleValue(), (int)
-			// B.y.doubleValue(),
-			// (int) C.y.doubleValue()},
-			// 3);
-
-			// System.out.println("zbuffer != null");
-			// Double alpha = ((b.y - c.y) * (target.x - C.x) + (C.x - B.x) *
-			// (target.y - C.y))
-			// / ((A.y - C.y) * (B.x - C.x) + (C.x - A.x) * (C.y - B.y));
-			// // System.out.println("loaded aplpha");
-			// Double beta = ((C.y - A.y) * (target.x - C.x) + (A.x - C.x) *
-			// (target.y - C.y))
-			// / ((A.y - C.y) * (B.x - C.x) + (C.x - A.x) * (C.y - B.y));
-			// // System.out.println("loaded beta");
-			// Double gamma = 1 - alpha - beta;
-			// // System.out.println("loaded gamma");
-			//
-			// Double zed = (alpha * (a.z * 100 + 250))// comment
-			// + (beta * (b.z * 100 + 250))// comment sthing
-			// + (gamma * (c.z * 100 + 250));
-			//
-			// zed = Math.floor(zed + 1);
-
-			Double zed = (a.z + b.z + c.z) / 3;
-			// System.out.println("tri: " + zed);
-
-			int renderTri[][] = MathUtil.tri.getTrianglePixels(new Point2D(A.x - minx, A.y - miny),
-					new Point2D(B.x - minx, B.y - miny), new Point2D(C.x - minx, C.y - miny),
-					maxx - minx, maxy - miny);
-
-			for (int x = minx; x < maxx; x++) {
-				for (int y = miny; y < maxy; y++) {
-
-					if (maxx - minx > renderTri.length || maxy - miny > renderTri[0].length) {
-						p.reportError("Null pointer exseption. overflow at renderTri maxy - miny: "
-								+ (maxy - miny) + " Length[0]: " + renderTri[0].length + ", maxy: "
-								+ maxy + ", miny: " + miny, 50);
-						p.reportError("Null pointer exseption. overflow at renderTri maxx - minx: "
-								+ (maxx - minx) + " Length: " + renderTri.length + " maxx: " + maxx
-								+ " minx: " + minx, 40);
-					} else if (zBuffer[x][y] == null) {
-
-						if (renderTri[x - minx][y - miny] == 1) {
-							// sep
-							zBuffer[x][y] = new Pixel(zed, faces[j].getColor());
-						}
-					}
-					// System.out.print(" ," + zBuffer[x][y].zedBuffer);
-					else if (renderTri[x - minx][y - miny] == 1) {
-						// System.out.println("zBuffer[x][y].zedBuffer:
-						// " +
-						// zBuffer[x][y].zedBuffer);
-						if (zBuffer[x][y].zedBuffer > zed) {
-							zBuffer[x][y] = new Pixel(zed, faces[j].getColor());
-							// System.out.println("yessssir!!!!");
-							p.reportError("none", 5);
-						}
-					} else {
-						// System.out.println("naddadaa");
-						p.reportError("no case before triggered", 2);
-					}
-				}
-				// MathUtil.print2DArray("redmetri: ", renderTri);
-			}
-			// System.out.println("finshed loading the zBUffer");
-
-			//
-			// g2d.setColor(faces[j].getColor());
-			// g2d.fillPolygon(Struct.toPointsX(one, two, three),
-			// Struct.toPointsY(one, two, three),
-			// 3);
-			// MathUtil.print2DArray("renderTri", renderTri);
-
-		}
 		if (points != null) {
 
 			if (polys.length > 0) {
