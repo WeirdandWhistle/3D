@@ -1,6 +1,6 @@
-package mathUtil;
+package libs;
 
-import mathUtil.Struct.Point2D;
+import libs.Struct.Point2D;
 
 public class MathUtil {
 
@@ -59,6 +59,14 @@ public class MathUtil {
 				}
 			}
 			return C;
+		}
+		public static Double[][] flatten(Double[][] a) {
+			Double[][] out = new Double[1][a.length];
+			for (int i = 0; i < a.length; i++) {
+				out[0][i] = a[i][0];
+			}
+			return out;
+
 		}
 		public static Double[][] clip(Double[][] transform, Double width, Double height,
 				Double farPlane, Double nearPlane, Double theta) {
@@ -178,9 +186,9 @@ public class MathUtil {
 				int rows = mat[0].length;
 
 				for (int i = 0; i < rows; i++) {
-					System.out.print("[ ");
+					System.out.print("[" + i + " ");
 					for (int k = 0; k < columns; k++) {
-						System.out.print(mat[k][i] + ", ");
+						System.out.print(k + " : " + mat[k][i] + ", ");
 					}
 					System.out.print("]");
 					System.out.println();
@@ -318,15 +326,17 @@ public class MathUtil {
 	public static Double pCord(Double cord, Double FOV, Double z) {
 		return (cord * FOV) / (z + FOV);
 	}
-	// Method to initialize a 2D array to a given value
-	// public static void initialize2DArray(Pixel[][] array, int value) {
-	// for (int i = 0; i < array.length; i++) {
-	// for (int j = 0; j < array[i].length; j++) {
-	// array[i][j].zedBuffer = value; // Set each element to the given
-	// // value
-	// }
-	// }
-	// }
+
+	public static int[][] roundDouble(Double[][] in) {
+		int[][] out = new int[in.length][in[0].length];
+
+		for (int i = 0; i < in.length; i++) {
+			for (int j = 0; j < in[0].length; j++) {
+				out[i][j] = (int) Math.round(in[i][j]);
+			}
+		}
+		return out;
+	}
 
 	// Method to print a 2D array for visualization
 	public static void print2DArray(int[][] array) {
