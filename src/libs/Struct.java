@@ -1,15 +1,16 @@
-package mathUtil;
+package libs;
 
 import java.awt.Color;
 
 public class Struct {
-	public static class obj {
+	public static class Obj {
 		public Double[][] scale, transformMat, mat;
 		public Double[] translationVec, scaleVec, rotationVec;
 		public Point3D[] points;
+		public Face[] faces;
 		// public Double rotaion = 0.0;
 
-		public obj(Point3D[] points) {
+		public Obj(Point3D[] points) {
 			translationVec = new Double[]{1.0, 1.0, 1.0};
 			rotationVec = new Double[]{1.0, 1.0, 1.0};
 			scaleVec = new Double[]{1.0, 1.0, 1.0};
@@ -17,7 +18,7 @@ public class Struct {
 
 			this.points = points;
 		}
-		public obj(Point3D[] points, Double[] translationVec, Double[] rotationVec,
+		public Obj(Point3D[] points, Double[] translationVec, Double[] rotationVec,
 				Double[] scaleVec) {
 			this.translationVec = translationVec;
 			this.rotationVec = rotationVec;
@@ -26,13 +27,23 @@ public class Struct {
 
 			this.points = points;
 		}
-		public obj() {
+		public Obj(Point3D[] points, Face[] faces, Double[] translationVec, Double[] rotationVec,
+				Double[] scaleVec) {
+			this.translationVec = translationVec;
+			this.rotationVec = rotationVec;
+			this.scaleVec = scaleVec;
+			this.faces = faces;
+			transformMat = MathUtil.Mat.getIdentity();
+
+			this.points = points;
+		}
+		public Obj() {
 			translationVec = new Double[]{0.0, 0.0, 0.0};
 			rotationVec = new Double[]{0.0, 0.0, 0.0};
 			scaleVec = new Double[]{1.0, 1.0, 1.0};
 			transformMat = MathUtil.Mat.getIdentity();
 		}
-		public obj(Double[] transVec, Double[] rotaionVec) {
+		public Obj(Double[] transVec, Double[] rotaionVec) {
 			translationVec = new Double[]{1.0, 1.0, 1.0};
 			rotationVec = new Double[]{1.0, 1.0, 1.0};
 			scaleVec = new Double[]{1.0, 1.0, 1.0};
@@ -103,6 +114,9 @@ public class Struct {
 			return this; // Return the point unchanged if w is 0 (avoid division
 							// by zero)
 		}
+		public Double[] getPoint() {
+			return new Double[]{x, y, z};
+		}
 
 	}
 	public static class Point2D {
@@ -116,6 +130,9 @@ public class Struct {
 			this.x = x;
 			this.y = y;
 			this.w = w;
+		}
+		public Double[] getVec2() {
+			return new Double[]{x, y};
 		}
 	}
 	public static class Edge {
@@ -138,6 +155,8 @@ public class Struct {
 		public Face(int[] indices, Color color) {
 			this.indices = indices;
 			this.color = color;
+		}
+		public Face() {
 		}
 		public int getIndex(int index) {
 			return indices[index];

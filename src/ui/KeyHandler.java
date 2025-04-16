@@ -3,8 +3,8 @@ package ui;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+import libs.MathUtil;
 import main.Panel;
-import mathUtil.MathUtil;
 
 public class KeyHandler implements KeyListener {
 
@@ -39,7 +39,8 @@ public class KeyHandler implements KeyListener {
 		}
 		lookVec3(rotation, turnSpeed);
 
-		p.viewObject.rotationVec[0] = Math.clamp(p.viewObject.rotationVec[0], -1.5, 1.5);
+		p.viewObject.rotationVec[0] = Math.clamp(p.viewObject.rotationVec[0], -Math.toRadians(90),
+				Math.toRadians(90));
 		// p.viewObject.rotationVec[1] = p.viewObject.rotationVec[1] % (Math.PI
 		// * 2);
 
@@ -100,28 +101,28 @@ public class KeyHandler implements KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		System.out.println(e.getKeyChar() + " : " + e.getKeyCode());
+		// System.out.println(e.getKeyChar() + " : " + e.getKeyCode());
 		boolean toggle = true;
 		switch (e.getKeyCode()) {
-			case 87 :
+			case KeyEvent.VK_W :
 				w = toggle;
 				break;
-			case 65 :
+			case KeyEvent.VK_A :
 				a = toggle;
 				break;
-			case 83 :
+			case KeyEvent.VK_S :
 				s = toggle;
 				break;
-			case 68 :
+			case KeyEvent.VK_D :
 				d = toggle;
 				break;
-			case 16 :
+			case KeyEvent.VK_SHIFT :
 				shift = toggle;
 				break;
-			case 32 :
+			case KeyEvent.VK_SPACE :
 				space = toggle;
 				break;
-			case 17 :
+			case KeyEvent.VK_CONTROL :
 				crtl = toggle;
 				break;
 			case KeyEvent.VK_UP :
