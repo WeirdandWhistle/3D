@@ -5,15 +5,17 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
 import libs.MathUtil;
-import libs.Struct.Edge;
 import libs.Struct.Face;
 import libs.Struct.Obj;
 import libs.Struct.Point2D;
 import libs.Struct.Point3D;
+import load.OBJLoad;
 import ui.KeyHandler;
 
 public class Panel extends JPanel implements Runnable {
@@ -43,26 +45,29 @@ public class Panel extends JPanel implements Runnable {
 	private Render3D render = new Render3D();
 	public Graphics2D g2d = frame.createGraphics();
 
-	public Point3D[] points = {// Comment
-			new Point3D(-1.0, -1.0, -1.0), new Point3D(-1.0, -1.0, 1.0), // Comment
-			new Point3D(1.0, -1.0, -1.0), new Point3D(-1.0, 1.0, -1.0), // Comment
-			new Point3D(-1.0, 1.0, 1.0), new Point3D(1.0, -1.0, 1.0), // Comment
-			new Point3D(1.0, 1.0, -1.0), new Point3D(1.0, 1.0, 1.0)};// Comment
-	public Edge edges[] = { // Comment
-			new Edge(0, 1), new Edge(0, 2), new Edge(0, 3), // Comment
-			new Edge(2, 5), new Edge(3, 6), new Edge(3, 4), // Comment
-			new Edge(4, 7), new Edge(6, 7), new Edge(7, 5), // Comment
-			new Edge(5, 1), new Edge(4, 1), new Edge(2, 6)};
-	public Face faces[] = {// commmmmmmmmmmeeeeeeeeennnnnnnnnntttttttt
-			new Face(new int[]{0, 1, 5, 2}, Color.red),
-			new Face(new int[]{3, 4, 7, 6}, Color.orange),
-			new Face(new int[]{4, 1, 5, 7}, Color.blue),
-			new Face(new int[]{0, 2, 6, 3}, Color.green),
-			new Face(new int[]{2, 6, 7, 5}, Color.yellow),
-			new Face(new int[]{3, 0, 1, 4}, Color.white)};
+	// public Point3D[] points = {// Comment
+	// new Point3D(-1.0, -1.0, -1.0), new Point3D(-1.0, -1.0, 1.0), // Comment
+	// new Point3D(1.0, -1.0, -1.0), new Point3D(-1.0, 1.0, -1.0), // Comment
+	// new Point3D(-1.0, 1.0, 1.0), new Point3D(1.0, -1.0, 1.0), // Comment
+	// new Point3D(1.0, 1.0, -1.0), new Point3D(1.0, 1.0, 1.0)};// Comment
+	// public Edge edges[] = { // Comment
+	// new Edge(0, 1), new Edge(0, 2), new Edge(0, 3), // Comment
+	// new Edge(2, 5), new Edge(3, 6), new Edge(3, 4), // Comment
+	// new Edge(4, 7), new Edge(6, 7), new Edge(7, 5), // Comment
+	// new Edge(5, 1), new Edge(4, 1), new Edge(2, 6)};
+	// public Face faces[] = {// commmmmmmmmmmeeeeeeeeennnnnnnnnntttttttt
+	// new Face(new int[]{0, 1, 5, 2}, Color.red),
+	// new Face(new int[]{3, 4, 7, 6}, Color.orange),
+	// new Face(new int[]{4, 1, 5, 7}, Color.blue),
+	// new Face(new int[]{0, 2, 6, 3}, Color.green),
+	// new Face(new int[]{2, 6, 7, 5}, Color.yellow),
+	// new Face(new int[]{3, 0, 1, 4}, Color.white)};
 
-	public Obj obj = new Obj(points, new Double[]{0.0, 0.0, 3.0}, new Double[]{0.0, 0.0, 0.0},
-			new Double[]{0.6, 0.6, 0.6});
+	public ArrayList<Point3D[]> points = new ArrayList<>();
+	public ArrayList<Face[]> faces = new ArrayList<>();
+
+	public Obj obj;
+	public OBJLoad fileLoad = new OBJLoad(new File("assets\\primitives\\cube.obj"));
 
 	public Panel() {
 		// cam.setViewDirection(new Double[]{0.0, 0.0, 0.0}, new Double[]{0.0,
@@ -72,7 +77,9 @@ public class Panel extends JPanel implements Runnable {
 		// 1.0, 0.0}, null);
 		this.setFocusTraversalKeysEnabled(false);
 		this.setPreferredSize(size);
+		this.loadGame();
 		this.startGameThread();
+
 	}
 	public void renderFrame() {
 		Double[][] mat = render.renderScence(this, frame, faces, obj, points);
@@ -91,6 +98,19 @@ public class Panel extends JPanel implements Runnable {
 			g.drawString(Integer.toString(displayFPS), 0, g.getFontMetrics().getHeight());
 			FPS++;
 		}
+
+	}
+	public void loadGame() {
+		System.out.println("started loading game " + Thread.currentThread());
+		fileLoad.load();
+
+		points.add(fileLoad.getPoints());
+		faces.add(fileLoad.getFaces());
+
+		obj = new Obj(points.get(0), new Double[]{0.0, 0.0, 3.0}, new Double[]{0.0, 0.0, 0.0},
+				new Double[]{0.6, 0.6, 0.6});
+		System.out.println("fineshed loading game");
+		// System.out.println(faces.get(0).length);
 
 	}
 

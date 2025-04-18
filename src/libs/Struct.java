@@ -156,8 +156,6 @@ public class Struct {
 			this.indices = indices;
 			this.color = color;
 		}
-		public Face() {
-		}
 		public int getIndex(int index) {
 			return indices[index];
 		}

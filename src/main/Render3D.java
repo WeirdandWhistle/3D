@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 import libs.MathUtil;
 import libs.Struct;
@@ -23,8 +24,8 @@ public class Render3D {
 	/**
 	 * @return Double[][] / matrix nessacary for the wire frame rendering
 	 **/
-	public Double[][] renderScence(Panel p, BufferedImage frame, Face[] faces, Obj obj,
-			Point3D[] points) {
+	public Double[][] renderScence(Panel p, BufferedImage frame, ArrayList<Face[]> faces, Obj obj,
+			ArrayList<Point3D[]> points) {
 		long timeBegin = System.currentTimeMillis();
 		long timeEnd = System.currentTimeMillis();
 		Graphics2D g2d = frame.createGraphics();
@@ -57,8 +58,6 @@ public class Render3D {
 
 		Pixel zBuffer[][] = new Pixel[p.size.width][p.size.height];
 
-		Face[] polys = faces;
-
 		// Initialize each element with a default Pixel (e.g., with an
 		// initial
 		// z-value)
@@ -69,19 +68,24 @@ public class Render3D {
 		}
 
 		if (points != null) {
+			for (int i = 0; i < faces.size(); i++) {
+				Face[] polys = faces.get(i);
+				if (polys.length > 0) {
 
-			if (polys.length > 0) {
+					Pixel[][] runningZed = (Pixel[][]) Util.popArray2Dzb(
+							new Pixel(1000.0, new Color(100, 100, 100, 100)), p.size.width,
+							p.size.height);
+					// System.out.println(polys[6]);
 
-				Pixel[][] runningZed = (Pixel[][]) Util.popArray2Dzb(
-						new Pixel(1000.0, new Color(100, 100, 100, 100)), p.size.width,
-						p.size.height);
-				for (Face face : polys) {
+					for (Face face : polys) {
+						// System.out.println(k);
 
-					runningZed = Util.comparePixelArray(runningZed,
-							renerPolygon(p, frame, face, points, mat));
-					// Util.printZBuffer("runningZed", runningZed);
+						runningZed = Util.comparePixelArray(runningZed,
+								renerPolygon(p, frame, face, points.get(i), mat));
+						// Util.printZBuffer("runningZed", runningZed);
+					}
+					zBuffer = Util.comparePixelArray(zBuffer, runningZed);
 				}
-				zBuffer = Util.comparePixelArray(zBuffer, runningZed);
 			}
 		}
 
