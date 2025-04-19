@@ -68,25 +68,28 @@ public class Render3D {
 		}
 
 		if (points != null) {
+			Pixel[][] runningZed = (Pixel[][]) Util.popArray2Dzb(
+					new Pixel(1000.0, new Color(100, 100, 100, 100)), p.size.width, p.size.height);
 			for (int i = 0; i < faces.size(); i++) {
 				Face[] polys = faces.get(i);
 				if (polys.length > 0) {
 
-					Pixel[][] runningZed = (Pixel[][]) Util.popArray2Dzb(
-							new Pixel(1000.0, new Color(100, 100, 100, 100)), p.size.width,
-							p.size.height);
 					// System.out.println(polys[6]);
-
+					// timeBegin = System.currentTimeMillis();
 					for (Face face : polys) {
 						// System.out.println(k);
 
-						runningZed = Util.comparePixelArray(runningZed,
-								renerPolygon(p, frame, face, points.get(i), mat));
+						renerPolygon(p, frame, face, points.get(i), mat, runningZed);
+
+						// runningZed = Util.comparePixelArray(runningZed, a);
+
 						// Util.printZBuffer("runningZed", runningZed);
 					}
-					zBuffer = Util.comparePixelArray(zBuffer, runningZed);
+					// timeEnd = System.currentTimeMillis();
+
 				}
 			}
+			zBuffer = Util.comparePixelArray(zBuffer, runningZed);
 		}
 
 		// timeBegin = System.currentTimeMillis();
@@ -106,7 +109,6 @@ public class Render3D {
 				}
 			}
 		}
-
 		// timeEnd = System.currentTimeMillis();
 		// System.out.println("time took to render: " + (timeEnd - timeBegin));
 		// System.out.println("currentThread: " + Thread.currentThread());
@@ -116,7 +118,7 @@ public class Render3D {
 	}
 
 	public Pixel[][] renerPolygon(Panel p, BufferedImage frame, Face face, Point3D[] points,
-			Double[][] mat) {
+			Double[][] mat, Pixel[][] zBuffer) {
 		Double[][] screenPoints = new Double[face.indices.length][2];
 		Double avgZ = 0.0;
 
@@ -124,23 +126,14 @@ public class Render3D {
 			Double[][] affterCamPos = MathUtil.Mat.multi(points[face.getIndex(i)].getMat(), mat);
 
 			screenPoints[i] = p.projectionA(affterCamPos[0]);
-			// System.out.println("i " + screenPoints[i][0]);
+
 			avgZ += affterCamPos[0][2];
 		}
 		avgZ /= face.indices.length;
-		// System.out.println(screenPoints[4][0]);
+
 		Polygon poly = Util.Poly.fromDouble(screenPoints);
-		// frame.createGraphics().setColor(Color.pink);
-		// frame.createGraphics().fillRect(poly.getBounds().x,
-		// poly.getBounds().y,
-		// poly.getBounds().width, poly.getBounds().height);
-		// System.out.println("poly: " + avgZ);
+
 		int[][] filledPixels = Util.Poly.fillPolyArray(poly, p.size.width, p.size.height);
-
-		// MathUtil.print2DArray("filledPixels", filledPixels);
-
-		Pixel[][] zBuffer = Util.popArray2Dzb(new Pixel(10000.0, new Color(100, 100, 100, 200)),
-				p.size.width, p.size.height);
 
 		for (int x = 0; x < filledPixels.length; x++) {
 			for (int y = 0; y < filledPixels[0].length; y++) {

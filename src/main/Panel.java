@@ -20,6 +20,7 @@ import ui.KeyHandler;
 
 public class Panel extends JPanel implements Runnable {
 
+	public final Double scaleFactor = 0.4;
 	public int gameTicks = 60;
 	public Double FOV = 100.0;
 	public Double nearPlane = 0.01;
@@ -101,15 +102,15 @@ public class Panel extends JPanel implements Runnable {
 
 	}
 	public void loadGame() {
-		System.out.println("started loading game " + Thread.currentThread());
+		// System.out.println("started loading game " + Thread.currentThread());
 		fileLoad.load();
 
 		points.add(fileLoad.getPoints());
 		faces.add(fileLoad.getFaces());
 
-		obj = new Obj(points.get(0), new Double[]{0.0, 0.0, 3.0}, new Double[]{0.0, 0.0, 0.0},
-				new Double[]{0.6, 0.6, 0.6});
-		System.out.println("fineshed loading game");
+		obj = new Obj(points.get(0), new Double[]{-1.0, -1.0, 2.0}, new Double[]{0.0, 0.0, 0.0},
+				new Double[]{scaleFactor, scaleFactor, scaleFactor});
+		// System.out.println("fineshed loading game");
 		// System.out.println(faces.get(0).length);
 
 	}

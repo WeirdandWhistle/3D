@@ -1,6 +1,7 @@
 package libs;
 
 import java.awt.Polygon;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 
 import libs.Struct.Face;
@@ -9,37 +10,29 @@ import libs.Struct.Pixel;
 public class Util {
 	public static class Poly {
 		public static int[][] fillPolyArray(Polygon poly, int maxWidth, int maxHeight) {
-			int width = (int) Math.round(poly.getBounds().getWidth());
-			int height = (int) Math.round(poly.getBounds().getHeight());
+			Rectangle getBounds = poly.getBounds();
+			int width = (int) getBounds.getWidth();
+			int height = (int) getBounds.getHeight();
 
-			int startX = poly.getBounds().x;
+			int startX = Math.max(0, getBounds.x);
+			int startY = Math.max(0, getBounds.y);
 
-			width += startX;
-			if (width < 0) {
-				width = 0;
-			}
+			int endX = Math.min(getBounds.x + width, maxWidth);
+			int endY = Math.min(getBounds.y + height, maxHeight);
 
-			int startY = poly.getBounds().y;
-
-			height += startY;
-			if (height < 0) {
-				height = 0;
-			}
-
-			width = width > maxWidth ? maxWidth : width;
-			height = height > maxHeight ? maxHeight : height;
-
-			int[][] out = new int[width][height];
-
-			if (width <= 0 || height <= 0) {
+			if (endX <= startX || endY <= startY) {
 				return new int[][]{{0}};
 			}
 
+			int[][] out = new int[endX][endY];
+
 			// System.out.println("polyArr width: " + width);
 
-			for (int x = 0; x < width; x++) {
-				for (int y = 0; y < height; y++) {
-					out[x][y] = (poly.contains(x, y)) ? 1 : 0;
+			for (int x = startX; x < endX; x++) {
+				for (int y = startY; y < endY; y++) {
+					if (poly.contains(x, y)) {
+						out[x][y] = 1;
+					}
 				}
 			}
 			return out;

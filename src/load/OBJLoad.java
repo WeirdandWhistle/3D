@@ -38,20 +38,20 @@ public class OBJLoad {
 			ArrayList<Point3D> point = new ArrayList<>();
 			ArrayList<Face> face = new ArrayList<>();
 			while ((line = read.readLine()) != null) {
-				System.out.println("current line reading: " + line);
+				// System.out.println("current line reading: " + line);
 
 				target = Database.getTarget(line);
 				body = line.replace(target, "").trim();
-				System.out.println("target: " + target);
+				// System.out.println("target: " + target);
 
 				switch (target) {
 					case "v" :
-						System.out.println("body:" + body);
+						// System.out.println("body:" + body);
 						point.add(getVertex(body));
-						System.out.println("vertex case");
+						// System.out.println("vertex case");
 						break;
 					case "f" :
-						System.out.println("face case");
+						// System.out.println("face case");
 						String[] b = body.split(" ");
 						int spaces = b.length;
 						int[] indicies = new int[spaces];
@@ -61,8 +61,7 @@ public class OBJLoad {
 							indicies[i] = Integer.parseInt(b[i].split("/")[0]) - 1;
 						}
 
-						face.add(new Face(indicies, bigColor[currentColor]));
-						currentColor++;
+						face.add(new Face(indicies, this.getColor()));
 						break;
 				}
 			}
@@ -75,7 +74,7 @@ public class OBJLoad {
 			for (int i = 0; i < face.size(); i++) {
 				faceOut[i] = face.get(i);
 			}
-			System.out.println("face out: " + faceOut.length);
+			// System.out.println("face out: " + faceOut.length);
 
 			faces = faceOut;
 			points = pointOut;
@@ -91,12 +90,19 @@ public class OBJLoad {
 	}
 	public Face[] getFaces() {
 		assert faces != null : "my guy! you have to load the obj faces before useing it!";
-		System.out.println("faces: " + faces.length);
+		// System.out.println("faces: " + faces.length);
 		return faces;
 
 	}
 	public static int spaces(String in) {
 		return in.length() - in.replaceAll(" ", "").length();
+	}
+	public Color getColor() {
+		currentColor++;
+		if (currentColor == bigColor.length) {
+			currentColor = 0;
+		}
+		return bigColor[currentColor];
 	}
 	public static Point3D getVertex(String in) {
 		String x;
@@ -109,12 +115,13 @@ public class OBJLoad {
 		z = Database.getTarget(in);
 		in = in.replaceFirst(z, "").trim();
 
-		System.out.println("x: " + x);
-		System.out.println("y: " + y);
-		System.out.println("y: " + z);
+		// System.out.println("x: " + x);
+		// System.out.println("y: " + y);
+		// System.out.println("y: " + z);
 
 		if (!in.trim().equals("")) {
-			System.out.println("Huston, we have a problem! " + Thread.currentThread());
+			// System.out.println("Huston, we have a problem! " +
+			// Thread.currentThread() + in.trim());
 		}
 		return new Point3D(Double.valueOf(x), Double.valueOf(y), Double.valueOf(z));
 
