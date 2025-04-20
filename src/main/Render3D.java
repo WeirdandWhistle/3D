@@ -3,6 +3,7 @@ package main;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -132,13 +133,32 @@ public class Render3D {
 		avgZ /= face.indices.length;
 
 		Polygon poly = Util.Poly.fromDouble(screenPoints);
+		double xFactor = 0;
+		double yFactor = 0;
+		Rectangle bounds = poly.getBounds();
+		if (face.getImg() != null) {
+			xFactor = (double) bounds.width / face.getImg().getWidth();
+			yFactor = (double) bounds.height / face.getImg().getHeight();
+			System.out.println(xFactor);
+		}
 
 		int[][] filledPixels = Util.Poly.fillPolyArray(poly, p.size.width, p.size.height);
 
 		for (int x = 0; x < filledPixels.length; x++) {
 			for (int y = 0; y < filledPixels[0].length; y++) {
 				if (filledPixels[x][y] == 1 && (zBuffer[x][y].zedBuffer > avgZ)) {
-					zBuffer[x][y] = new Pixel(avgZ, face.getColor());
+					if (face.getImg() != null) {
+
+						int getX = (int) Math.min((x - bounds.x) / (xFactor), 99);
+						getX = Math.max(getX, 0);
+						int getY = (int) Math.min((y - bounds.y) / (yFactor), 99);
+						getY = Math.max(getY, 0);
+						// System.out.println("x:" + getX + ", y:" + getY);
+						zBuffer[x][y] = new Pixel(avgZ,
+								new Color(face.getImg().getRGB(getX, getY)));
+					} else {
+						zBuffer[x][y] = new Pixel(avgZ, face.getColor());
+					}
 				}
 			}
 		}

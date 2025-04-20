@@ -7,6 +7,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
+
 import libs.Struct.Face;
 import libs.Struct.Point3D;
 
@@ -41,7 +43,7 @@ public class OBJLoad {
 				// System.out.println("current line reading: " + line);
 
 				target = Database.getTarget(line);
-				body = line.replace(target, "").trim();
+				body = line.replaceFirst(target, "").trim();
 				// System.out.println("target: " + target);
 
 				switch (target) {
@@ -62,6 +64,18 @@ public class OBJLoad {
 						}
 
 						face.add(new Face(indicies, this.getColor()));
+						break;
+					case "tex" :
+						String t = Database.getTarget(body);
+						System.out.println(body);
+						body = body.replaceFirst(t, "").trim();
+						System.out.println(body);
+						face.get(Integer.parseInt(t) - 1).setImg(ImageIO.read(new File(body)));
+						// System.out.println("tex cords: "
+						// + face.get(Integer.parseInt(t) -
+						// 1).getImg().getWidth() + ", "
+						// + face.get(Integer.parseInt(t) -
+						// 1).getImg().getHeight());
 						break;
 				}
 			}

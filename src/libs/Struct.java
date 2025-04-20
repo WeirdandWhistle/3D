@@ -1,6 +1,7 @@
 package libs;
 
 import java.awt.Color;
+import java.awt.image.BufferedImage;
 
 public class Struct {
 	public static class Obj {
@@ -148,6 +149,7 @@ public class Struct {
 		public int[] indices;
 		public boolean fill = true;
 		public Double avgZ;
+		public BufferedImage img = null;
 		public Face(int[] indices) {
 			this.indices = indices;
 			color = Color.white;
@@ -164,6 +166,12 @@ public class Struct {
 		}
 		public void setColor(Color color) {
 			this.color = color;
+		}
+		public BufferedImage getImg() {
+			return img;
+		}
+		public void setImg(BufferedImage img) {
+			this.img = img;
 		}
 	}
 	public static class Pixel {
