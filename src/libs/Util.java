@@ -1,11 +1,16 @@
 package libs;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import libs.Struct.Face;
 import libs.Struct.Pixel;
+import libs.Struct.Point3D;
 
 public class Util {
 	public static class Poly {
@@ -127,5 +132,70 @@ public class Util {
 		}
 
 		return c;
+	}
+
+	public static Rectangle getBounds(Point3D[] points) {
+		int x = (int) points[0].x.doubleValue();
+		int y = (int) points[0].y.doubleValue();
+		int maxX = 0;
+		int maxY = 0;
+
+		for (int i = 0; i < points.length; i++) {
+			if (points[i].x < x) {
+				x = (int) points[i].x.doubleValue();
+			}
+			if (points[i].y < y) {
+				y = (int) points[i].y.doubleValue();
+			}
+			if (points[i].x > maxX) {
+				maxX = (int) points[i].x.doubleValue();
+			}
+			if (points[i].y > maxY) {
+				maxY = (int) points[i].y.doubleValue();
+			}
+
+		}
+
+		return new Rectangle(x, y, maxX - x, maxY - y);
+
+	}
+	public static double[] min(Double[][] points) {
+		double minx = points[0][0];
+		double miny = points[0][1];
+
+		for (Double[] point : points) {
+			if (point[0] < minx) {
+				minx = point[0];
+			}
+			if (point[1] < miny) {
+				miny = point[1];
+			}
+		}
+		return new double[]{minx, miny};
+	}
+	public static BufferedImage rotateImageByDegrees(BufferedImage img, double angle) {
+		double rads = Math.toRadians(angle);
+		double sin = Math.abs(Math.sin(rads)), cos = Math.abs(Math.cos(rads));
+		int w = img.getWidth();
+		int h = img.getHeight();
+		int newWidth = (int) Math.floor(w * cos + h * sin);
+		int newHeight = (int) Math.floor(h * cos + w * sin);
+
+		BufferedImage rotated = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2d = rotated.createGraphics();
+		AffineTransform at = new AffineTransform();
+		at.translate((newWidth - w) / 2, (newHeight - h) / 2);
+
+		int x = w / 2;
+		int y = h / 2;
+
+		at.rotate(rads, x, y);
+		g2d.setTransform(at);
+		g2d.drawImage(img, 0, 0, null);
+		g2d.setColor(Color.RED);
+		g2d.drawRect(0, 0, newWidth - 1, newHeight - 1);
+		g2d.dispose();
+
+		return rotated;
 	}
 }

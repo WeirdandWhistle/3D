@@ -135,11 +135,24 @@ public class Render3D {
 		Polygon poly = Util.Poly.fromDouble(screenPoints);
 		double xFactor = 0;
 		double yFactor = 0;
+		double xDif = 0;
+		double yDif = 0;
 		Rectangle bounds = poly.getBounds();
+		BufferedImage img = null;
+		// Random ran = new Random();
+		// double rand = ran.nextDouble() * 100 - 100;
 		if (face.getImg() != null) {
-			xFactor = (double) bounds.width / face.getImg().getWidth();
-			yFactor = (double) bounds.height / face.getImg().getHeight();
-			System.out.println(xFactor);
+			img = face.getImg();
+			xDif = MathUtil.diff(screenPoints[0][0], screenPoints[1][0]);
+			yDif = MathUtil.diff(screenPoints[0][1], screenPoints[1][1]);
+			int factor = (int) Math.sqrt(Math.pow(xDif, 2) + Math.pow(yDif, 2));
+
+			xFactor = (double) factor / img.getWidth();
+			yFactor = (double) factor / img.getHeight();
+			// img = Util.rotateImageByDegrees(img, 45);
+			System.out.println("factor:" + factor);
+			System.out.println("xDif:" + xDif);
+			System.out.println("yDif:" + yDif);
 		}
 
 		int[][] filledPixels = Util.Poly.fillPolyArray(poly, p.size.width, p.size.height);
@@ -147,15 +160,51 @@ public class Render3D {
 		for (int x = 0; x < filledPixels.length; x++) {
 			for (int y = 0; y < filledPixels[0].length; y++) {
 				if (filledPixels[x][y] == 1 && (zBuffer[x][y].zedBuffer > avgZ)) {
-					if (face.getImg() != null) {
+					if (img != null) {
 
-						int getX = (int) Math.min((x - bounds.x) / (xFactor), 99);
-						getX = Math.max(getX, 0);
-						int getY = (int) Math.min((y - bounds.y) / (yFactor), 99);
-						getY = Math.max(getY, 0);
+						// gets the uv cords relitive
+						int getX = (int) (((x - bounds.x)) / xFactor);
+						int getY = (int) (((y - bounds.y)) / yFactor);
+
+						// makes vector to roate
+						Double[] vec = {(double) getX, (double) getY};
+
+						// translate vecotor to center
+						vec[0] -= img.getWidth() / 2;
+						vec[1] -= img.getHeight() / 2;
+						// rotaes vector
+						vec = MathUtil.vec3.rot2x2(vec,
+								Math.toDegrees(p.viewObject.rotationVec[1]));
+						// transltes vector back to origin
+						vec[0] += img.getWidth() / 2;
+						vec[1] += img.getHeight() / 2;
+
+						// translates vector for propper rotation about 0,0
+						if (vec[0] < 0) {
+							vec[0] = vec[0] + img.getWidth();
+						}
+						if (vec[1] < 0) {
+							vec[1] = vec[1] + img.getHeight();
+						}
+						// System.out.println("x:" + vec[0] + " y:" + vec[1]);
+
+						getX = (int) vec[0].doubleValue();
+						getY = (int) vec[1].doubleValue();
+
+						// protects again bad vector cords
+						getX = (int) Math.max(0, getX);
+						getY = (int) Math.max(0, getY);
+
+						getX = (int) Math.min(img.getWidth() - 1, getX);
+						getY = (int) Math.min(img.getHeight() - 1, getY);
+						//
+						// System.out.println("x:" + getX + " y:" + getY);
+
+						// getY = Math.max(getY, 0);
 						// System.out.println("x:" + getX + ", y:" + getY);
-						zBuffer[x][y] = new Pixel(avgZ,
-								new Color(face.getImg().getRGB(getX, getY)));
+						// (-getX) + face.getImg().getWidth() - 1
+						// (-getY) + face.getImg().getHeight() - 1)
+						zBuffer[x][y] = new Pixel(avgZ, new Color(img.getRGB(getX, getY)));
 					} else {
 						zBuffer[x][y] = new Pixel(avgZ, face.getColor());
 					}

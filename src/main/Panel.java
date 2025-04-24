@@ -33,7 +33,7 @@ public class Panel extends JPanel implements Runnable {
 	private int displayFPS = FPS;
 	public String error = null;
 	public int errorVal = 0;
-	private int t = 0;
+	public int t = 0;
 
 	public Dimension size = new Dimension(500, 500);
 	public Thread gameThread;
@@ -93,10 +93,10 @@ public class Panel extends JPanel implements Runnable {
 		// System.out.println(g)
 		// g.drawRect(0, 0, 300, 300);;
 		if (g != null) {
-
+			g2d.setColor(Color.black);
+			g2d.drawString(Integer.toString(displayFPS), 0, g.getFontMetrics().getHeight());
 			g.drawImage(frame, 0, 0, size.width, size.height, null);
-			g.setColor(Color.black);
-			g.drawString(Integer.toString(displayFPS), 0, g.getFontMetrics().getHeight());
+
 			FPS++;
 		}
 
@@ -123,6 +123,11 @@ public class Panel extends JPanel implements Runnable {
 		// obj.rotate(rot, rot / 2, 0.0);
 		// obj.translationVec[2] += sn low;
 
+		// System.out.println("cam x:" + viewObject.rotationVec[0] + " y:" +
+		// viewObject.rotationVec[1]
+		// + " z:" + viewObject.rotationVec[2]);
+
+		t++;
 	}
 
 	@Override
