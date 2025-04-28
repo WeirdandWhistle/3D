@@ -95,8 +95,11 @@ public class Panel extends JPanel implements Runnable {
 		if (g != null) {
 			g2d.setColor(Color.black);
 			g2d.drawString(Integer.toString(displayFPS), 0, g.getFontMetrics().getHeight());
+
 			g.drawImage(frame, 0, 0, size.width, size.height, null);
 
+			g2d.setColor(Color.white);
+			g2d.clearRect(0, 0, size.width, size.height);
 			FPS++;
 		}
 

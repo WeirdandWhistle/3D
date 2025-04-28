@@ -173,6 +173,41 @@ public class Util {
 		}
 		return new double[]{minx, miny};
 	}
+
+	public static Double vecLength(Double[] a, Double[] b) {
+		double xLen = MathUtil.diff(a[0], b[0]);
+		double yLen = MathUtil.diff(a[1], b[1]);
+
+		Double vecLen = Math.sqrt((xLen * xLen) + (yLen * yLen));
+
+		return vecLen;
+	}
+	public static int getHighPoint(Double[][] mass, int indexCheck, int level) {
+		assert level == -1 || level == 1
+				: "you must choose a level high or lowel by setting level to 1 or -1 respectily!";
+		assert mass != null : "main payload(mass) cant be null!";
+		assert mass[0].length - 1 < indexCheck
+				: "the index to check must be in the main payload (mass)";
+
+		int index = 0;
+		Double running = mass[index][indexCheck];
+
+		for (int i = 0; i < mass.length; i++) {
+			if (level == 1) {
+				if (mass[i][indexCheck] > running) {
+					running = mass[i][indexCheck];
+					index = i;
+				}
+			} else if (level == -1) {
+				if (mass[i][indexCheck] < running) {
+					running = mass[i][indexCheck];
+					index = i;
+				}
+			}
+		}
+
+		return index;
+	}
 	public static BufferedImage rotateImageByDegrees(BufferedImage img, double angle) {
 		double rads = Math.toRadians(angle);
 		double sin = Math.abs(Math.sin(rads)), cos = Math.abs(Math.cos(rads));
