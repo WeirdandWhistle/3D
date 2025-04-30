@@ -34,6 +34,7 @@ public class Panel extends JPanel implements Runnable {
 	public String error = null;
 	public int errorVal = 0;
 	public int t = 0;
+	public Double scaleTex = 0.0;
 
 	public Dimension size = new Dimension(500, 500);
 	public Thread gameThread;

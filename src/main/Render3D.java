@@ -137,15 +137,19 @@ public class Render3D {
 		double yFactor = 0;
 		double xDif = 0;
 		double yDif = 0;
+		int xRead = 0;
+		int yRead = 0;
+		// Double rotOffset = 0.0;
 		Rectangle bounds = poly.getBounds();
 		BufferedImage img = null;
 		// Random ran = new Random();
 		// double rand = ran.nextDouble() * 100 - 100;
 		if (face.getImg() != null) {
 			img = face.getImg();
-			xDif = MathUtil.diff(screenPoints[0][0], screenPoints[1][0]);
-			yDif = MathUtil.diff(screenPoints[0][1], screenPoints[1][1]);
-			int factor = (int) Math.sqrt(Math.pow(xDif, 2) + Math.pow(yDif, 2));
+			// xDif = MathUtil.diff(screenPoints[0][0], screenPoints[1][0]);
+			// yDif = MathUtil.diff(screenPoints[0][1], screenPoints[1][1]);
+			// int factor = (int) Math.sqrt(Math.pow(xDif, 2) + Math.pow(yDif,
+			// 2));
 
 			// xFactor = (double) (bounds.getWidth() * factor) / img.getWidth();
 			// yFactor = (double) (bounds.getHeight() * factor) /
@@ -184,11 +188,17 @@ public class Render3D {
 			System.out.println("indexHighY:" + indexHighY);
 			System.out.println("heightIndex:" + heightIndex);
 
+			Double avgLength = Util.avgVecLength(screenPoints);
+			System.out.println("avgLength:" + avgLength);
+
 			double newWidth = Util.vecLength(screenPoints[indexHighY], screenPoints[widthIndex]);
 			double newHeight = Util.vecLength(screenPoints[indexHighY], screenPoints[heightIndex]);
 
-			xFactor = (double) (newHeight) / img.getWidth();
-			yFactor = (double) (newWidth) / img.getHeight();
+			xFactor = (double) (avgLength) / img.getWidth();
+			yFactor = (double) (avgLength) / img.getHeight();
+
+			xRead = (int) (screenPoints[indexHighY][0].doubleValue());
+			yRead = (int) (screenPoints[indexHighY][1].doubleValue());
 
 			// xFactor = (double) MathUtil.diff(screenPoints[XI][0],
 			// screenPoints[XI + 1 >= screenPoints.length ? XI - 1 : XI + 1][0])
@@ -208,6 +218,18 @@ public class Render3D {
 			// yFactor = (double) (bounds.getHeight()
 			// - (Math.toDegrees(p.viewObject.rotationVec[1] % 4) % 90)) /
 			// img.getHeight();
+
+			// xFactor = (double) (bounds.getWidth() * p.scaleTex) /
+			// img.getWidth();
+			// yFactor = (double) (bounds.getHeight() * p.scaleTex) /
+			// img.getHeight();
+
+			// xFactor /= p.scaleTex;
+			// yFactor /= p.scaleTex;
+
+			// xFactor = (double) (192) / (img.getWidth());
+			// yFactor = (double) (192) / (img.getHeight());
+
 			// xFactor = (double) (bounds.getWidth()) / img.getWidth();
 			// yFactor = (double) (bounds.getHeight()) / img.getHeight();
 			System.out.println("newWidth:" + newWidth);
@@ -217,6 +239,14 @@ public class Render3D {
 			System.out.println("bounds height:" + bounds.getHeight());
 			System.out.println("bounds ratio:" + bounds.getWidth() / bounds.getHeight());
 			System.out.println("new ratio:" + newWidth / newHeight);
+			System.out.println("scaleTex:" + p.scaleTex);
+
+			// rotOffset = (Math.toDegrees(p.viewObject.rotationVec[1]) % 90) -
+			// 45;
+			// rotOffset /= 45;
+			//
+			// rotOffset = Math.abs(rotOffset) * -1 + 1;
+			// System.out.println("rotOffset:" + rotOffset);
 			System.out.println("---------------------------");
 		}
 
@@ -228,21 +258,27 @@ public class Render3D {
 					if (img != null) {
 
 						// gets the uv cords relitive
-						int getX = (int) (((x - bounds.x)) / (xFactor));
-						int getY = (int) (((y - bounds.y)) / (yFactor));
+						// int getX = (int) (((x - xRead)
+						// - ((Conts.TEXTURE_WIGGLE + p.scaleTex) * rotOffset))
+						// / xFactor);
+						// int getY = (int) (((y - yRead)
+						// - ((Conts.TEXTURE_WIGGLE + p.scaleTex) * rotOffset))
+						// / yFactor);
+						int getX = (int) (((x - xRead)) / xFactor);
+						int getY = (int) (((y - yRead)) / yFactor);
 
 						// makes vector to roate
 						Double[] vec = {(double) getX, (double) getY};
 
 						// translate vecotor to center
-						vec[0] -= (img.getWidth()) / 2;
-						vec[1] -= (img.getHeight()) / 2;
+						// vec[0] -= (img.getWidth()) / 2;
+						// vec[1] -= (img.getHeight()) / 2;
 						// rotaes vector
 						vec = MathUtil.vec3.rot2x2(vec,
 								Math.toDegrees(p.viewObject.rotationVec[1]));
 						// transltes vector back to origin
-						vec[0] += (img.getWidth()) / 2;
-						vec[1] += (img.getHeight()) / 2;
+						// vec[0] += (img.getWidth()) / 2;
+						// vec[1] += (img.getHeight()) / 2;
 
 						// translates vector for propper rotation about 0,0
 						if (vec[0] < 0) {

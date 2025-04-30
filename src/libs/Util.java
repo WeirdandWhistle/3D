@@ -175,12 +175,27 @@ public class Util {
 	}
 
 	public static Double vecLength(Double[] a, Double[] b) {
-		double xLen = MathUtil.diff(a[0], b[0]);
-		double yLen = MathUtil.diff(a[1], b[1]);
+		double xLen = a[0] - b[0];
+		double yLen = a[1] - b[1];
 
 		Double vecLen = Math.sqrt((xLen * xLen) + (yLen * yLen));
 
 		return vecLen;
+	}
+	public static Double avgVecLength(Double[][] mass) {
+		assert mass.length > 0 : "main payload(mass) cant be nothing";
+		assert mass[0].length == 2 : "main payloiad(mass) only does n by 2 lengths";
+		assert mass[0][0] != null : "main payload(mass) cant be null";
+
+		Double total = 0.0;
+
+		for (int i = 1; i < mass.length; i++) {
+			total += vecLength(mass[i], mass[i - 1]);
+		}
+
+		total /= mass.length;
+
+		return total;
 	}
 	public static int getHighPoint(Double[][] mass, int indexCheck, int level) {
 		assert level == -1 || level == 1
@@ -232,5 +247,11 @@ public class Util {
 		g2d.dispose();
 
 		return rotated;
+	}
+	public static class Tex {
+		public static Color uvChecker(Double u, Double v, Color a, Color b) {
+
+			return null;
+		}
 	}
 }
