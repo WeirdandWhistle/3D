@@ -20,10 +20,10 @@ public class KeyHandler implements KeyListener {
 	public void update() {
 
 		if (q) {
-			p.scaleTex -= 0.01;
+			p.scaleTex = true;
 		}
 		if (e) {
-			p.scaleTex += 0.01;
+			p.scaleTex = false;
 		}
 
 		Double rotation[] = {0.0, 0.0, 0.0};

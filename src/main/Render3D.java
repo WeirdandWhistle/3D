@@ -175,13 +175,13 @@ public class Render3D {
 
 			int indexHighY = Util.getHighPoint(screenPoints, 1, -1);
 
-			int widthIndex = indexHighY - 1;
-			int heightIndex = indexHighY + 1;
-			if (widthIndex < 0) {
-				widthIndex = (screenPoints.length - 1) - Math.abs(widthIndex + 1);
+			int widthIndex = indexHighY + 1;
+			int heightIndex = indexHighY - 1;
+			if (heightIndex < 0) {
+				heightIndex = (screenPoints.length - 1) - Math.abs(heightIndex + 1);
 			}
-			if (heightIndex > screenPoints.length - 1) {
-				heightIndex = 0;
+			if (widthIndex > screenPoints.length - 1) {
+				widthIndex = 0;
 			}
 
 			System.out.println("widthIndex:" + widthIndex);
@@ -189,16 +189,33 @@ public class Render3D {
 			System.out.println("heightIndex:" + heightIndex);
 
 			Double avgLength = Util.avgVecLength(screenPoints);
-			System.out.println("avgLength:" + avgLength);
+			// System.out.println("avgLength:" + avgLength);
 
 			double newWidth = Util.vecLength(screenPoints[indexHighY], screenPoints[widthIndex]);
 			double newHeight = Util.vecLength(screenPoints[indexHighY], screenPoints[heightIndex]);
+			// double newWidth = MathUtil.diff(screenPoints[heightIndex][0],
+			// screenPoints[widthIndex][0]);
+			// double newHeight = MathUtil.diff(screenPoints[widthIndex][1],
+			// screenPoints[heightIndex][1]);
 
-			xFactor = (double) (avgLength) / img.getWidth();
-			yFactor = (double) (avgLength) / img.getHeight();
+			// double newWidth = MathUtil.diff(screenPoints[0][0],
+			// screenPoints[screenPoints.length / 2][0]);
+			// double newHeight = MathUtil.diff(screenPoints[0][1],
+			// screenPoints[screenPoints.length / 2][1]);;
+			//
+			xFactor = (double) (newWidth) / img.getWidth();
+			yFactor = (double) (newHeight) / img.getHeight();
 
 			xRead = (int) (screenPoints[indexHighY][0].doubleValue());
 			yRead = (int) (screenPoints[indexHighY][1].doubleValue());
+
+			// double avgScreenSize = (p.size.width + p.size.height) / 2.0;
+			// double avgImgSize = (img.getWidth() + img.getHeight()) / 2.0;
+			//
+			// double scaleFactor = avgScreenSize / avgImgSize;
+			//
+			// xFactor = scaleFactor;
+			// yFactor = scaleFactor;
 
 			// xFactor = (double) MathUtil.diff(screenPoints[XI][0],
 			// screenPoints[XI + 1 >= screenPoints.length ? XI - 1 : XI + 1][0])
@@ -233,13 +250,14 @@ public class Render3D {
 			// xFactor = (double) (bounds.getWidth()) / img.getWidth();
 			// yFactor = (double) (bounds.getHeight()) / img.getHeight();
 			System.out.println("newWidth:" + newWidth);
-			System.out.println("bounds width:" + bounds.getWidth());
+			// System.out.println("bounds width:" + bounds.getWidth());
 			System.out.println("newHeight:" + newHeight);
 
-			System.out.println("bounds height:" + bounds.getHeight());
-			System.out.println("bounds ratio:" + bounds.getWidth() / bounds.getHeight());
-			System.out.println("new ratio:" + newWidth / newHeight);
-			System.out.println("scaleTex:" + p.scaleTex);
+			// System.out.println("bounds height:" + bounds.getHeight());
+			// System.out.println("bounds ratio:" + bounds.getWidth() /
+			// bounds.getHeight());
+			// System.out.println("new ratio:" + newWidth / newHeight);
+			// System.out.println("scaleTex:" + p.scaleTex);
 
 			// rotOffset = (Math.toDegrees(p.viewObject.rotationVec[1]) % 90) -
 			// 45;
