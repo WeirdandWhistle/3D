@@ -284,6 +284,21 @@ public class MathUtil {
 		}
 	}
 	public static class vec3 {
+		public static Double[][] rotY3x3(Double[] vec, double angle) {
+			Double[][] rotY = {{Math.cos(angle), 0.0, Math.sin(angle)}, {0.0, 1.0, 0.0},
+					{-Math.sin(angle), 0.0, Math.cos(angle)}};
+
+			Double[][] vecArr = {vec};
+
+			return Mat.multi(vecArr, rotY);
+		}
+		public static Double[] rot2x2(Double[] vec, double theta) {
+			theta = Math.toRadians(theta);
+			Double[][] rot = {{Math.cos(theta), Math.sin(theta)},
+					{-Math.sin(theta), Math.cos(theta)}};
+
+			return Mat.multi(new Double[][]{vec}, rot)[0];
+		}
 		public static Double[] normalize(Double[] vec3) {
 
 			Double length_of_v = Math
@@ -363,5 +378,14 @@ public class MathUtil {
 			}
 			System.out.println();
 		}
+	}
+	public static double diff(double a, double b) {
+		double out;
+		if (a > b) {
+			out = a - b;
+		} else {
+			out = b - a;
+		}
+		return out;
 	}
 }

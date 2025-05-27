@@ -8,7 +8,7 @@ import main.Panel;
 
 public class KeyHandler implements KeyListener {
 
-	public boolean w, a, s, d, shift, crtl, space, up, down, left, right, tab;
+	public boolean w, a, s, d, shift, crtl, space, up, down, left, right, tab, q, e;
 	private Panel p;
 	private Double moveSpeed = 0.1;
 	private Double sprintMoveSpeed = moveSpeed * 1.5;
@@ -18,6 +18,14 @@ public class KeyHandler implements KeyListener {
 		this.p = p;
 	}
 	public void update() {
+
+		if (q) {
+			p.scaleTex = true;
+		}
+		if (e) {
+			p.scaleTex = false;
+		}
+
 		Double rotation[] = {0.0, 0.0, 0.0};
 		Double moveSpeed = this.moveSpeed;
 		if (shift) {
@@ -105,40 +113,46 @@ public class KeyHandler implements KeyListener {
 		boolean toggle = true;
 		switch (e.getKeyCode()) {
 			case KeyEvent.VK_W :
-				w = toggle;
+				this.w = toggle;
 				break;
 			case KeyEvent.VK_A :
-				a = toggle;
+				this.a = toggle;
 				break;
 			case KeyEvent.VK_S :
-				s = toggle;
+				this.s = toggle;
 				break;
 			case KeyEvent.VK_D :
-				d = toggle;
+				this.d = toggle;
 				break;
 			case KeyEvent.VK_SHIFT :
-				shift = toggle;
+				this.shift = toggle;
 				break;
 			case KeyEvent.VK_SPACE :
-				space = toggle;
+				this.space = toggle;
 				break;
 			case KeyEvent.VK_CONTROL :
-				crtl = toggle;
+				this.crtl = toggle;
 				break;
 			case KeyEvent.VK_UP :
-				up = toggle;
+				this.up = toggle;
 				break;
 			case KeyEvent.VK_LEFT :
-				left = toggle;
+				this.left = toggle;
 				break;
 			case KeyEvent.VK_RIGHT :
-				right = toggle;
+				this.right = toggle;
 				break;
 			case KeyEvent.VK_DOWN :
-				down = toggle;
+				this.down = toggle;
 				break;
 			case KeyEvent.VK_TAB :
-				tab = toggle;
+				this.tab = toggle;
+				break;
+			case KeyEvent.VK_Q :
+				this.q = toggle;
+				break;
+			case KeyEvent.VK_E :
+				this.e = toggle;
 				break;
 		}
 
@@ -148,41 +162,47 @@ public class KeyHandler implements KeyListener {
 	public void keyReleased(KeyEvent e) {
 		boolean toggle = false;
 		switch (e.getKeyCode()) {
-			case 87 :
-				w = toggle;
+			case KeyEvent.VK_W :
+				this.w = toggle;
 				break;
-			case 65 :
-				a = toggle;
+			case KeyEvent.VK_A :
+				this.a = toggle;
 				break;
-			case 83 :
-				s = toggle;
+			case KeyEvent.VK_S :
+				this.s = toggle;
 				break;
-			case 68 :
-				d = toggle;
+			case KeyEvent.VK_D :
+				this.d = toggle;
 				break;
-			case 16 :
-				shift = toggle;
+			case KeyEvent.VK_SHIFT :
+				this.shift = toggle;
 				break;
-			case 32 :
-				space = toggle;
+			case KeyEvent.VK_SPACE :
+				this.space = toggle;
 				break;
-			case 17 :
-				crtl = toggle;
+			case KeyEvent.VK_CONTROL :
+				this.crtl = toggle;
 				break;
 			case KeyEvent.VK_UP :
-				up = toggle;
+				this.up = toggle;
 				break;
 			case KeyEvent.VK_LEFT :
-				left = toggle;
+				this.left = toggle;
 				break;
 			case KeyEvent.VK_RIGHT :
-				right = toggle;
+				this.right = toggle;
 				break;
 			case KeyEvent.VK_DOWN :
-				down = toggle;
+				this.down = toggle;
 				break;
 			case KeyEvent.VK_TAB :
-				tab = toggle;
+				this.tab = toggle;
+				break;
+			case KeyEvent.VK_Q :
+				this.q = toggle;
+				break;
+			case KeyEvent.VK_E :
+				this.e = toggle;
 				break;
 		}
 

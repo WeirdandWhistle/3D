@@ -5,19 +5,23 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
 import libs.MathUtil;
-import libs.Struct.Edge;
 import libs.Struct.Face;
 import libs.Struct.Obj;
 import libs.Struct.Point2D;
 import libs.Struct.Point3D;
+import load.OBJLoad;
 import ui.KeyHandler;
+import ui.MouseHandler;
 
 public class Panel extends JPanel implements Runnable {
 
+	public final Double scaleFactor = 0.4;
 	public int gameTicks = 60;
 	public Double FOV = 100.0;
 	public Double nearPlane = 0.01;
@@ -30,7 +34,8 @@ public class Panel extends JPanel implements Runnable {
 	private int displayFPS = FPS;
 	public String error = null;
 	public int errorVal = 0;
-	private int t = 0;
+	public int t = 0;
+	public boolean scaleTex = false;
 
 	public Dimension size = new Dimension(500, 500);
 	public Thread gameThread;
@@ -38,31 +43,36 @@ public class Panel extends JPanel implements Runnable {
 	public Camera cam = new Camera();
 	public Obj viewObject = new Obj();
 	public KeyHandler keys = new KeyHandler(this);
+	public MouseHandler mh = new MouseHandler(this);
 	public BufferedImage frame = new BufferedImage(size.width, size.height,
 			BufferedImage.TYPE_INT_ARGB);
 	private Render3D render = new Render3D();
 	public Graphics2D g2d = frame.createGraphics();
 
-	public Point3D[] points = {// Comment
-			new Point3D(-1.0, -1.0, -1.0), new Point3D(-1.0, -1.0, 1.0), // Comment
-			new Point3D(1.0, -1.0, -1.0), new Point3D(-1.0, 1.0, -1.0), // Comment
-			new Point3D(-1.0, 1.0, 1.0), new Point3D(1.0, -1.0, 1.0), // Comment
-			new Point3D(1.0, 1.0, -1.0), new Point3D(1.0, 1.0, 1.0)};// Comment
-	public Edge edges[] = { // Comment
-			new Edge(0, 1), new Edge(0, 2), new Edge(0, 3), // Comment
-			new Edge(2, 5), new Edge(3, 6), new Edge(3, 4), // Comment
-			new Edge(4, 7), new Edge(6, 7), new Edge(7, 5), // Comment
-			new Edge(5, 1), new Edge(4, 1), new Edge(2, 6)};
-	public Face faces[] = {// commmmmmmmmmmeeeeeeeeennnnnnnnnntttttttt
-			new Face(new int[]{0, 1, 5, 2}, Color.red),
-			new Face(new int[]{3, 4, 7, 6}, Color.orange),
-			new Face(new int[]{4, 1, 5, 7}, Color.blue),
-			new Face(new int[]{0, 2, 6, 3}, Color.green),
-			new Face(new int[]{2, 6, 7, 5}, Color.yellow),
-			new Face(new int[]{3, 0, 1, 4}, Color.white)};
+	// public Point3D[] points = {// Comment
+	// new Point3D(-1.0, -1.0, -1.0), new Point3D(-1.0, -1.0, 1.0), // Comment
+	// new Point3D(1.0, -1.0, -1.0), new Point3D(-1.0, 1.0, -1.0), // Comment
+	// new Point3D(-1.0, 1.0, 1.0), new Point3D(1.0, -1.0, 1.0), // Comment
+	// new Point3D(1.0, 1.0, -1.0), new Point3D(1.0, 1.0, 1.0)};// Comment
+	// public Edge edges[] = { // Comment
+	// new Edge(0, 1), new Edge(0, 2), new Edge(0, 3), // Comment
+	// new Edge(2, 5), new Edge(3, 6), new Edge(3, 4), // Comment
+	// new Edge(4, 7), new Edge(6, 7), new Edge(7, 5), // Comment
+	// new Edge(5, 1), new Edge(4, 1), new Edge(2, 6)};
+	// public Face faces[] = {// commmmmmmmmmmeeeeeeeeennnnnnnnnntttttttt
+	// new Face(new int[]{0, 1, 5, 2}, Color.red),
+	// new Face(new int[]{3, 4, 7, 6}, Color.orange),
+	// new Face(new int[]{4, 1, 5, 7}, Color.blue),
+	// new Face(new int[]{0, 2, 6, 3}, Color.green),
+	// new Face(new int[]{2, 6, 7, 5}, Color.yellow),
+	// new Face(new int[]{3, 0, 1, 4}, Color.white)};
 
-	public Obj obj = new Obj(points, new Double[]{0.0, 0.0, 3.0}, new Double[]{0.0, 0.0, 0.0},
-			new Double[]{0.6, 0.6, 0.6});
+	public ArrayList<Point3D[]> points = new ArrayList<>();
+	public ArrayList<Face[]> faces = new ArrayList<>();
+	public ArrayList<Obj> objs = new ArrayList<>();
+
+	// public Obj obj;
+	public OBJLoad fileLoad = new OBJLoad(new File("assets\\primitives\\cubeTexTest.obj"));
 
 	public Panel() {
 		// cam.setViewDirection(new Double[]{0.0, 0.0, 0.0}, new Double[]{0.0,
@@ -72,10 +82,22 @@ public class Panel extends JPanel implements Runnable {
 		// 1.0, 0.0}, null);
 		this.setFocusTraversalKeysEnabled(false);
 		this.setPreferredSize(size);
+		this.addMouseMotionListener(mh);
+		this.addMouseListener(mh);
+		this.loadGame();
 		this.startGameThread();
+
 	}
 	public void renderFrame() {
-		Double[][] mat = render.renderScence(this, frame, faces, obj, points);
+		render.renderScence(this, frame, objs);
+
+		for (int o = 0; o < objs.size(); o++) {
+			if (objs.get(o).drawOutline) {
+				render.renderWireFrame(this, objs.get(o), g2d, objs.get(o).toCamSpaceMat);
+
+			}
+			objs.get(o).drawOutline = false;
+		}
 		// render.renderWireFrame(this, edges, obj, g2d, mat);
 
 	}
@@ -85,12 +107,33 @@ public class Panel extends JPanel implements Runnable {
 		// System.out.println(g)
 		// g.drawRect(0, 0, 300, 300);;
 		if (g != null) {
+			g2d.setColor(Color.black);
+			g2d.drawString(Integer.toString(displayFPS), 0, g.getFontMetrics().getHeight());
 
 			g.drawImage(frame, 0, 0, size.width, size.height, null);
-			g.setColor(Color.black);
-			g.drawString(Integer.toString(displayFPS), 0, g.getFontMetrics().getHeight());
+
+			g2d.setColor(Color.white);
+			g2d.clearRect(0, 0, size.width, size.height);
 			FPS++;
 		}
+
+	}
+	public void loadGame() {
+		// System.out.println("started loading game " + Thread.currentThread());
+		fileLoad.load();
+
+		// points.add(fileLoad.getPoints());
+		// faces.add(fileLoad.getFaces());
+
+		objs.add(new Obj(fileLoad.getPoints(), fileLoad.getFaces(), new Double[]{-1.0, -1.0, 2.0},
+				new Double[]{0.0, 0.0, 0.0}, new Double[]{scaleFactor, scaleFactor, scaleFactor}));
+
+		fileLoad.setFile(new File("assets\\primitives\\cube.obj")).load();
+
+		objs.add(new Obj(fileLoad.getPoints(), fileLoad.getFaces(), new Double[]{0.0, -1.0, 2.0},
+				new Double[]{0.0, 0.0, 0.0}, new Double[]{1.0, 1.0, 1.0}));
+		// System.out.println("fineshed loading game");
+		// System.out.println(faces.get(0).length);
 
 	}
 
@@ -99,9 +142,15 @@ public class Panel extends JPanel implements Runnable {
 		keys.update();
 
 		rot += slow;
+		// System.out.println(mh.m.x + ", " + mh.m.y);
 		// obj.rotate(rot, rot / 2, 0.0);
 		// obj.translationVec[2] += sn low;
 
+		// System.out.println("cam x:" + viewObject.rotationVec[0] + " y:" +
+		// viewObject.rotationVec[1]
+		// + " z:" + viewObject.rotationVec[2]);
+
+		t++;
 	}
 
 	@Override

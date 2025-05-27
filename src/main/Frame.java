@@ -15,6 +15,7 @@ public class Frame extends JFrame {
 		this.setResizable(false);
 		this.setFocusTraversalKeysEnabled(false);
 		this.addKeyListener(Panel.keys);
+
 		this.add(Panel);
 
 		this.pack();
