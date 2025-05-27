@@ -8,12 +8,9 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import libs.MathUtil;
-import libs.Struct;
-import libs.Struct.Edge;
 import libs.Struct.Face;
 import libs.Struct.Obj;
 import libs.Struct.Pixel;
-import libs.Struct.Point2D;
 import libs.Struct.Point3D;
 import libs.Util;
 
@@ -25,8 +22,7 @@ public class Render3D {
 	/**
 	 * @return Double[][] / matrix nessacary for the wire frame rendering
 	 **/
-	public Double[][] renderScence(Panel p, BufferedImage frame, ArrayList<Face[]> faces, Obj obj,
-			ArrayList<Point3D[]> points) {
+	public void renderScence(Panel p, BufferedImage frame, ArrayList<Obj> objs) {
 		long timeBegin = System.currentTimeMillis();
 		long timeEnd = System.currentTimeMillis();
 		Graphics2D g2d = frame.createGraphics();
@@ -40,57 +36,64 @@ public class Render3D {
 		// cam.pos.z);
 		// MathUtil.Mat.print(obj.transformMat);
 		p.cam.setViewXYZ(p.viewObject.translationVec, p.viewObject.rotationVec);
-		Double[][] mat = obj.mat4();
+
 		// MathUtil.Mat.print("paint: ", mat);
 		// cam.orthographicProjection(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
 		p.cam.perspectiveProjection(Math.toRadians(45), (double) p.size.width / p.size.height,
 				p.nearPlane, p.farPlane);
 
 		Double[][] projectionView = MathUtil.Mat.multi(p.cam.getView(), p.cam.getProjection());
-		// try
-		// reversing
-		// the
-		// order
-
-		mat = MathUtil.Mat.multi(mat, projectionView);
-
-		// System.out.println("cam z: " + viewObject.translationVec[2]);
-		// System.out.println("camMat z: " + projectionView[2][2]);
 
 		Pixel zBuffer[][] = new Pixel[p.size.width][p.size.height];
-
-		// Initialize each element with a default Pixel (e.g., with an
-		// initial
-		// z-value)
 		for (int x = 0; x < zBuffer.length; x++) {
 			for (int y = 0; y < zBuffer[0].length; y++) {
 				zBuffer[x][y] = new Pixel(10000.0, new Color(100, 100, 100, 100)); // Initiali
 			}
 		}
 
-		if (points != null) {
-			Pixel[][] runningZed = (Pixel[][]) Util.popArray2Dzb(
-					new Pixel(1000.0, new Color(100, 100, 100, 100)), p.size.width, p.size.height);
-			for (int i = 0; i < faces.size(); i++) {
-				Face[] polys = faces.get(i);
+		for (int o = 0; o < objs.size(); o++) {
+
+			Double[][] mat = objs.get(o).mat4();
+			mat = MathUtil.Mat.multi(mat, projectionView);
+
+			objs.get(o).toCamSpaceMat = mat;
+
+			// System.out.println("cam z: " + viewObject.translationVec[2]);
+			// System.out.println("camMat z: " + projectionView[2][2]);
+
+			// Initialize each element with a default Pixel (e.g., with an
+			// initial
+			// z-value)
+
+			if (objs.get(o).points != null) {
+				Pixel[][] runningZed = (Pixel[][]) Util.popArray2Dzb(
+						new Pixel(1000.0, new Color(100, 100, 100, 100)), p.size.width,
+						p.size.height);
+
+				Face[] polys = objs.get(o).faces;
 				if (polys.length > 0) {
 
 					// System.out.println(polys[6]);
 					// timeBegin = System.currentTimeMillis();
+					int f = 0;
 					for (Face face : polys) {
 						// System.out.println(k);
 
-						renerPolygon(p, frame, face, points.get(i), mat, runningZed);
+						renerPolygon(p, frame, face, objs.get(o).points, mat, runningZed,
+								objs.get(o), f);
 
-						// runningZed = Util.comparePixelArray(runningZed, a);
+						// runningZed = Util.comparePixelArray(runningZed,
+						// a);
 
 						// Util.printZBuffer("runningZed", runningZed);
+						f++;
 					}
 					// timeEnd = System.currentTimeMillis();
 
 				}
+				zBuffer = Util.comparePixelArray(zBuffer, runningZed);
 			}
-			zBuffer = Util.comparePixelArray(zBuffer, runningZed);
+
 		}
 
 		// timeBegin = System.currentTimeMillis();
@@ -111,15 +114,18 @@ public class Render3D {
 			}
 		}
 		// timeEnd = System.currentTimeMillis();
-		// System.out.println("time took to render: " + (timeEnd - timeBegin));
+		// System.out.println("time took to render: " + (timeEnd -
+		// timeBegin));
 		// System.out.println("currentThread: " + Thread.currentThread());
 		// System.out.println("size of zBufer " + (zBuffer.length *
 		// zBuffer[0].length));
-		return mat;
+
+		return;
+
 	}
 
 	public Pixel[][] renerPolygon(Panel p, BufferedImage frame, Face face, Point3D[] points,
-			Double[][] mat, Pixel[][] zBuffer) {
+			Double[][] mat, Pixel[][] zBuffer, Obj obj, int f) {
 		Double[][] screenPoints = new Double[face.indices.length][2];
 		Double avgZ = 0.0;
 
@@ -133,6 +139,13 @@ public class Render3D {
 		avgZ /= face.indices.length;
 
 		Polygon poly = Util.Poly.fromDouble(screenPoints);
+		// face.drawOutline = false;
+		if (poly.contains(p.mh.m)) {
+			obj.drawOutline = true;
+			// face.drawOutline = true;
+			// System.out.println("polgon:" + f);
+		}
+
 		double xFactor = 0;
 		double yFactor = 0;
 		double xDif = 0;
@@ -175,24 +188,40 @@ public class Render3D {
 
 			int indexHighY = Util.getHighPoint(screenPoints, 1, -1);
 
-			int widthIndex = indexHighY + 1;
-			int heightIndex = indexHighY - 1;
-			if (heightIndex < 0) {
-				heightIndex = (screenPoints.length - 1) - Math.abs(heightIndex + 1);
-			}
-			if (widthIndex > screenPoints.length - 1) {
-				widthIndex = 0;
-			}
+			// int oppsiteIndex = Util.getHighPoint(screenPoints, 0, 1);
+			//
+			// int highX = Util.getHighPoint(screenPoints, 0, 1);
+			// int lowX = Util.getHighPoint(screenPoints, 0, -1);
+			//
+			// int widthIndex = indexHighY + 1;
+			// int heightIndex = indexHighY - 1;
+			// if (heightIndex < 0) {
+			// heightIndex = (screenPoints.length - 1) - Math.abs(heightIndex +
+			// 1);
+			// }
+			// if (widthIndex > screenPoints.length - 1) {
+			// widthIndex = 0;
+			// }
 
-			System.out.println("widthIndex:" + widthIndex);
-			System.out.println("indexHighY:" + indexHighY);
-			System.out.println("heightIndex:" + heightIndex);
+			// if (oppsiteIndex >= screenPoints.length) {
+			// oppsiteIndex = oppsiteIndex - screenPoints.length - 1;
+			// }
+			// if (oppsiteIndex <= 0) {
+			// oppsiteIndex += screenPoints.length - 1;
+			// }
 
-			Double avgLength = Util.avgVecLength(screenPoints);
+			// System.out.println("oppsiteIndex:" + oppsiteIndex);
+			// System.out.println("indexHighY:" + indexHighY);
+			// System.out.println("widthIndex:" + widthIndex);
+			// System.out.println("heightIndex:" + heightIndex);
+
+			// Double avgLength = Util.avgVecLength(screenPoints);
 			// System.out.println("avgLength:" + avgLength);
 
-			double newWidth = Util.vecLength(screenPoints[indexHighY], screenPoints[widthIndex]);
-			double newHeight = Util.vecLength(screenPoints[indexHighY], screenPoints[heightIndex]);
+			// double newWidth = Util.vecLength(screenPoints[indexHighY],
+			// screenPoints[widthIndex]);
+			// double newHeight = Util.vecLength(screenPoints[indexHighY],
+			// screenPoints[heightIndex]);
 			// double newWidth = MathUtil.diff(screenPoints[heightIndex][0],
 			// screenPoints[widthIndex][0]);
 			// double newHeight = MathUtil.diff(screenPoints[widthIndex][1],
@@ -202,12 +231,34 @@ public class Render3D {
 			// screenPoints[screenPoints.length / 2][0]);
 			// double newHeight = MathUtil.diff(screenPoints[0][1],
 			// screenPoints[screenPoints.length / 2][1]);;
-			//
-			xFactor = (double) (newWidth) / img.getWidth();
-			yFactor = (double) (newHeight) / img.getHeight();
 
-			xRead = (int) (screenPoints[indexHighY][0].doubleValue());
-			yRead = (int) (screenPoints[indexHighY][1].doubleValue());
+			// double newWidth = MathUtil.diff(screenPoints[oppsiteIndex][0],
+			// screenPoints[indexHighY][0]);
+			// double newHeight = screenPoints[oppsiteIndex][1] -
+			// screenPoints[indexHighY][1];
+
+			// double rot = (Math.toDegrees(p.viewObject.rotationVec[1]) % 90) -
+			// 90;
+			//
+			// rot /= 45;
+
+			// System.out.println("rot:" + rot);
+
+			// double newWidth = Util.vecLength(screenPoints[indexHighY],
+			// screenPoints[highX]);
+			// double newHeight = Util.vecLength(screenPoints[indexHighY],
+			// screenPoints[lowX]);
+
+			// double newWidth = Util.vecLength(screenPoints[0],
+			// screenPoints[1]);
+			// double newHeight = Util.vecLength(screenPoints[0],
+			// screenPoints[screenPoints.length - 1]);
+			//
+			// xFactor = (double) (newWidth) / img.getWidth();
+			// yFactor = (double) (newHeight) / img.getHeight();
+
+			xRead = (int) Math.round(screenPoints[indexHighY][0]);
+			yRead = (int) Math.round(screenPoints[indexHighY][1]);
 
 			// double avgScreenSize = (p.size.width + p.size.height) / 2.0;
 			// double avgImgSize = (img.getWidth() + img.getHeight()) / 2.0;
@@ -247,11 +298,11 @@ public class Render3D {
 			// xFactor = (double) (192) / (img.getWidth());
 			// yFactor = (double) (192) / (img.getHeight());
 
-			// xFactor = (double) (bounds.getWidth()) / img.getWidth();
-			// yFactor = (double) (bounds.getHeight()) / img.getHeight();
-			System.out.println("newWidth:" + newWidth);
+			xFactor = (double) (bounds.getWidth()) / img.getWidth();
+			yFactor = (double) (bounds.getHeight()) / img.getHeight();
+			// System.out.println("newWidth:" + newWidth);
 			// System.out.println("bounds width:" + bounds.getWidth());
-			System.out.println("newHeight:" + newHeight);
+			// System.out.println("newHeight:" + newHeight);
 
 			// System.out.println("bounds height:" + bounds.getHeight());
 			// System.out.println("bounds ratio:" + bounds.getWidth() /
@@ -265,7 +316,7 @@ public class Render3D {
 			//
 			// rotOffset = Math.abs(rotOffset) * -1 + 1;
 			// System.out.println("rotOffset:" + rotOffset);
-			System.out.println("---------------------------");
+			// System.out.println("---------------------------");
 		}
 
 		int[][] filledPixels = Util.Poly.fillPolyArray(poly, p.size.width, p.size.height);
@@ -293,7 +344,7 @@ public class Render3D {
 						// vec[1] -= (img.getHeight()) / 2;
 						// rotaes vector
 						vec = MathUtil.vec3.rot2x2(vec,
-								Math.toDegrees(p.viewObject.rotationVec[1]));
+								Math.toDegrees(p.viewObject.rotationVec[1]) + face.imgRot);
 						// transltes vector back to origin
 						// vec[0] += (img.getWidth()) / 2;
 						// vec[1] += (img.getHeight()) / 2;
@@ -333,23 +384,63 @@ public class Render3D {
 		return zBuffer;
 
 	}
-	public void renderWireFrame(Panel p, Edge[] edges, Obj obj, Graphics2D g2d, Double[][] mat) {
-		for (int i = 0; i < edges.length; i++) {
-			Point3D startPoint = obj.points[edges[i].start];
-			Point3D endPoint = obj.points[edges[i].end];
-			// MathUtil.Mat.print("for loop: ", mat);
-			startPoint = Struct.toPoint3D(MathUtil.Mat.multi(startPoint.getMat(), mat));
-			endPoint = Struct.toPoint3D(MathUtil.Mat.multi(endPoint.getMat(), mat));
+	public void renderWireFrame(Panel p, Obj obj, Graphics2D g2d, Double[][] mat) {
+		// for (int i = 0; i < edges.length; i++) {
+		// Point3D startPoint = obj.points[edges[i].start];
+		// Point3D endPoint = obj.points[edges[i].end];
+		// // MathUtil.Mat.print("for loop: ", mat);
+		// startPoint = Struct.toPoint3D(MathUtil.Mat.multi(startPoint.getMat(),
+		// mat));
+		// endPoint = Struct.toPoint3D(MathUtil.Mat.multi(endPoint.getMat(),
+		// mat));
+		//
+		// Point2D start = p.projectionA(startPoint);
+		// Point2D end = p.projectionA(endPoint);
+		//
+		// g2d.setColor(Color.MAGENTA);
+		//
+		// g2d.drawLine((int) start.x.doubleValue(), (int)
+		// start.y.doubleValue(), // Comment
+		// (int) end.x.doubleValue(), (int) end.y.doubleValue());
+		//
+		// }
 
-			Point2D start = p.projectionA(startPoint);
-			Point2D end = p.projectionA(endPoint);
+		for (int i = 0; i < obj.faces.length; i++) {
 
-			g2d.setColor(Color.MAGENTA);
+			// if (obj.faces[i].drawOutline) {
+			// System.out.println("draw frame:" + i);
+			// }
+			obj.faces[i].drawOutline = false;
+			for (int j = 1; j < obj.faces[i].indices.length; j++) {
+				Double[][] Point1 = MathUtil.Mat
+						.multi(obj.points[obj.faces[i].getIndex(j)].getMat(), mat);
+				Double[][] Point2 = MathUtil.Mat
+						.multi(obj.points[obj.faces[i].getIndex(j - 1)].getMat(), mat);
 
-			g2d.drawLine((int) start.x.doubleValue(), (int) start.y.doubleValue(), // Comment
-					(int) end.x.doubleValue(), (int) end.y.doubleValue());
+				Double[] p1 = p.projectionA(Point1[0]);
+				Double[] p2 = p.projectionA(Point2[0]);
 
+				g2d.setColor(Color.black);
+				// g2d.setStroke(new BasicStroke(2));
+				g2d.drawLine(Util.round(p1[0]), Util.round(p1[1]), Util.round(p2[0]),
+						Util.round(p2[1]));
+
+			}
+			Double[][] Point1 = MathUtil.Mat.multi(obj.points[obj.faces[i].getIndex(0)].getMat(),
+					mat);
+			Double[][] Point2 = MathUtil.Mat.multi(
+					obj.points[obj.faces[i].getIndex(obj.faces[i].indices.length - 1)].getMat(),
+					mat);
+
+			Double[] p1 = p.projectionA(Point1[0]);
+			Double[] p2 = p.projectionA(Point2[0]);
+
+			g2d.setColor(Color.black);
+			// g2d.setStroke(new BasicStroke(2));
+			g2d.drawLine(Util.round(p1[0]), Util.round(p1[1]), Util.round(p2[0]),
+					Util.round(p2[1]));
 		}
+		// g2d.setStroke(new BasicStroke(1));
 	}
 
 }

@@ -254,4 +254,7 @@ public class Util {
 			return null;
 		}
 	}
+	public static int round(Double a) {
+		return (int) Math.round(a);
+	}
 }

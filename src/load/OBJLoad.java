@@ -26,12 +26,15 @@ public class OBJLoad {
 	public OBJLoad(File file) {
 		this.file = file;
 	}
-	public void setFile(File file) {
+	public OBJLoad setFile(File file) {
 		this.file = file;
+		System.out.println("now loading file: " + this.file);
+		return this;
 	}
 
 	public void load() {
 		try {
+			@SuppressWarnings("resource")
 			BufferedReader read = new BufferedReader(new FileReader(file));
 
 			String line;
@@ -39,8 +42,9 @@ public class OBJLoad {
 			String body;
 			ArrayList<Point3D> point = new ArrayList<>();
 			ArrayList<Face> face = new ArrayList<>();
+			System.out.println(file);
 			while ((line = read.readLine()) != null) {
-				// System.out.println("current line reading: " + line);
+				System.out.println(line);
 
 				target = Database.getTarget(line);
 				body = line.replaceFirst(target, "").trim();
@@ -66,11 +70,18 @@ public class OBJLoad {
 						face.add(new Face(indicies, this.getColor()));
 						break;
 					case "tex" :
-						String t = Database.getTarget(body);
-						System.out.println(body);
-						body = body.replaceFirst(t, "").trim();
-						System.out.println(body);
-						face.get(Integer.parseInt(t) - 1).setImg(ImageIO.read(new File(body)));
+						// String t = Database.getTarget(body);
+						String faceForImg = body.split(" ")[0];
+						String fileToImg = body.split(" ")[1];
+						String imgRot = body.split(" ")[2];
+
+						// System.out.println(body);
+						// body = body.replaceFirst(t, "").trim();
+						// System.out.println(body);
+						face.get(Integer.parseInt(faceForImg) - 1)
+								.setImg(ImageIO.read(new File(fileToImg)));
+						face.get(Integer.parseInt(faceForImg) - 1).imgRot = Integer
+								.parseInt(imgRot);
 						// System.out.println("tex cords: "
 						// + face.get(Integer.parseInt(t) -
 						// 1).getImg().getWidth() + ", "

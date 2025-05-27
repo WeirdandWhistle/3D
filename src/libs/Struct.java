@@ -5,10 +5,11 @@ import java.awt.image.BufferedImage;
 
 public class Struct {
 	public static class Obj {
-		public Double[][] scale, transformMat, mat;
+		public Double[][] scale, transformMat, mat, toCamSpaceMat;
 		public Double[] translationVec, scaleVec, rotationVec;
 		public Point3D[] points;
 		public Face[] faces;
+		public boolean drawOutline = false;
 		// public Double rotaion = 0.0;
 
 		public Obj(Point3D[] points) {
@@ -150,6 +151,8 @@ public class Struct {
 		public boolean fill = true;
 		public Double avgZ;
 		public BufferedImage img = null;
+		public int imgRot = 0;
+		public boolean drawOutline = false;
 		public Face(int[] indices) {
 			this.indices = indices;
 			color = Color.white;

@@ -17,6 +17,7 @@ import libs.Struct.Point2D;
 import libs.Struct.Point3D;
 import load.OBJLoad;
 import ui.KeyHandler;
+import ui.MouseHandler;
 
 public class Panel extends JPanel implements Runnable {
 
@@ -42,6 +43,7 @@ public class Panel extends JPanel implements Runnable {
 	public Camera cam = new Camera();
 	public Obj viewObject = new Obj();
 	public KeyHandler keys = new KeyHandler(this);
+	public MouseHandler mh = new MouseHandler(this);
 	public BufferedImage frame = new BufferedImage(size.width, size.height,
 			BufferedImage.TYPE_INT_ARGB);
 	private Render3D render = new Render3D();
@@ -67,9 +69,10 @@ public class Panel extends JPanel implements Runnable {
 
 	public ArrayList<Point3D[]> points = new ArrayList<>();
 	public ArrayList<Face[]> faces = new ArrayList<>();
+	public ArrayList<Obj> objs = new ArrayList<>();
 
-	public Obj obj;
-	public OBJLoad fileLoad = new OBJLoad(new File("assets\\primitives\\cube.obj"));
+	// public Obj obj;
+	public OBJLoad fileLoad = new OBJLoad(new File("assets\\primitives\\cubeTexTest.obj"));
 
 	public Panel() {
 		// cam.setViewDirection(new Double[]{0.0, 0.0, 0.0}, new Double[]{0.0,
@@ -79,12 +82,22 @@ public class Panel extends JPanel implements Runnable {
 		// 1.0, 0.0}, null);
 		this.setFocusTraversalKeysEnabled(false);
 		this.setPreferredSize(size);
+		this.addMouseMotionListener(mh);
+		this.addMouseListener(mh);
 		this.loadGame();
 		this.startGameThread();
 
 	}
 	public void renderFrame() {
-		Double[][] mat = render.renderScence(this, frame, faces, obj, points);
+		render.renderScence(this, frame, objs);
+
+		for (int o = 0; o < objs.size(); o++) {
+			if (objs.get(o).drawOutline) {
+				render.renderWireFrame(this, objs.get(o), g2d, objs.get(o).toCamSpaceMat);
+
+			}
+			objs.get(o).drawOutline = false;
+		}
 		// render.renderWireFrame(this, edges, obj, g2d, mat);
 
 	}
@@ -109,11 +122,16 @@ public class Panel extends JPanel implements Runnable {
 		// System.out.println("started loading game " + Thread.currentThread());
 		fileLoad.load();
 
-		points.add(fileLoad.getPoints());
-		faces.add(fileLoad.getFaces());
+		// points.add(fileLoad.getPoints());
+		// faces.add(fileLoad.getFaces());
 
-		obj = new Obj(points.get(0), new Double[]{-1.0, -1.0, 2.0}, new Double[]{0.0, 0.0, 0.0},
-				new Double[]{scaleFactor, scaleFactor, scaleFactor});
+		objs.add(new Obj(fileLoad.getPoints(), fileLoad.getFaces(), new Double[]{-1.0, -1.0, 2.0},
+				new Double[]{0.0, 0.0, 0.0}, new Double[]{scaleFactor, scaleFactor, scaleFactor}));
+
+		fileLoad.setFile(new File("assets\\primitives\\cube.obj")).load();
+
+		objs.add(new Obj(fileLoad.getPoints(), fileLoad.getFaces(), new Double[]{0.0, -1.0, 2.0},
+				new Double[]{0.0, 0.0, 0.0}, new Double[]{1.0, 1.0, 1.0}));
 		// System.out.println("fineshed loading game");
 		// System.out.println(faces.get(0).length);
 
@@ -124,6 +142,7 @@ public class Panel extends JPanel implements Runnable {
 		keys.update();
 
 		rot += slow;
+		// System.out.println(mh.m.x + ", " + mh.m.y);
 		// obj.rotate(rot, rot / 2, 0.0);
 		// obj.translationVec[2] += sn low;
 
