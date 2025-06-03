@@ -100,8 +100,8 @@ public class MathUtil {
 				Double far) {
 			assert Math.abs(aspect - Float.MIN_VALUE) > 0.0f;
 
-			final Double tanHalfFovy = Math.tan(fovy / 2.f);
-			Double[][] projectionMatrix = getIdentity();
+			final Double tanHalfFovy = Math.tan(fovy / 2.0);
+			Double[][] projectionMatrix = get0();
 			projectionMatrix[0][0] = 1.0 / (aspect * tanHalfFovy);
 			projectionMatrix[1][1] = 1.0 / (tanHalfFovy);
 			projectionMatrix[2][2] = far / (far - near);
@@ -176,6 +176,10 @@ public class MathUtil {
 		public static Double[][] getIdentity() {
 			return new Double[][]{{1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, {0.0, 0.0, 1.0, 0.0},
 					{0.0, 0.0, 0.0, 1.0}};
+		}
+		public static Double[][] get0() {
+			return new Double[][]{{0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0},
+					{0.0, 0.0, 0.0, 0.0}};
 		}
 		public static Double mod(Double x, Double y) {
 			return x - y * Math.floor(x / y);
@@ -325,16 +329,32 @@ public class MathUtil {
 			assert factor != 0 : "factor can be zero but you dont get a vector!";
 			return new Double[]{a[0] * factor, a[1] * factor, a[2] * factor};
 		}
+		public static Double[] forwardDirTo90(Double yaw) {
+			Double[] deg90 = {0.0, 0.0, 0.0};
+
+			Double sinYaw = Math.sin(yaw);
+			Double cosYaw = Math.cos(yaw);
+
+			if (Math.abs(sinYaw) > Math.abs(cosYaw)) {
+				deg90[0] = sinYaw > 0 ? 1.0 : -1.0;
+			} else if (Math.abs(sinYaw) < Math.abs(cosYaw)) {
+				deg90[2] = cosYaw > 0 ? 1.0 : -1.0;
+			}
+
+			return deg90;
+
+		}
+
 	}
-	public static Double dot(Double[] x, Double[] y, int sign) {
-		assert sign == 1 || sign == 0 : "sign can only be 1 or -1";
+	public static Double dot(Double[] x, Double[] y) {
+		// assert sign == 1 || sign == 0 : "sign can only be 1 or -1";
 		if (x.length != y.length) {
 			throw new IllegalArgumentException(
 					"x length(" + x.length + ") and y length(" + y.length + ") must be equal");
 		}
 		Double out = 0.0;
 		for (int i = 0; i < x.length; i++) {
-			out += (x[i] * y[i]) * sign;
+			out += (x[i] * y[i]);
 		}
 		return out;
 	}

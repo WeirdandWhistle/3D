@@ -4,10 +4,12 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 
 import main.Panel;
 
-public class MouseHandler implements MouseListener, MouseMotionListener {
+public class MouseHandler implements MouseListener, MouseMotionListener, MouseWheelListener {
 
 	public Point m = new Point(0, 0);
 	private Panel p;
@@ -65,6 +67,15 @@ public class MouseHandler implements MouseListener, MouseMotionListener {
 	@Override
 	public void mouseMoved(MouseEvent e) {
 		m = e.getPoint();
+
+	}
+
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		System.out.println("mouse:" + e.getWheelRotation());
+
+		p.viewObject.translationVec[0] += e.getWheelRotation();
+		System.out.println("zoomScale:" + p.zoomScale);
 
 	}
 

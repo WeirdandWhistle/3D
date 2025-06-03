@@ -21,11 +21,13 @@ import ui.MouseHandler;
 
 public class Panel extends JPanel implements Runnable {
 
-	public final Double scaleFactor = 0.4;
+	public final Double scaleFactor = 1.0;
+	public int zoomScale = 120;// 120
 	public int gameTicks = 60;
 	public Double FOV = 100.0;
-	public Double nearPlane = 0.01;
-	public Double farPlane = 10.0;
+	public final Double nearPlaneFinal = 0.10;
+	public Double nearPlane = nearPlaneFinal;
+	public Double farPlane = 1.0;
 	public Double[] ones = {1.0, 1.0, 1.0};
 	public double rot = 0;
 	public double slow = 0.01;
@@ -35,9 +37,9 @@ public class Panel extends JPanel implements Runnable {
 	public String error = null;
 	public int errorVal = 0;
 	public int t = 0;
-	public boolean scaleTex = false;
+	public Double scaleTex = 45.0;
 
-	public Dimension size = new Dimension(500, 500);
+	public Dimension size = new Dimension(1000, 1000);
 	public Thread gameThread;
 
 	public Camera cam = new Camera();
@@ -46,8 +48,9 @@ public class Panel extends JPanel implements Runnable {
 	public MouseHandler mh = new MouseHandler(this);
 	public BufferedImage frame = new BufferedImage(size.width, size.height,
 			BufferedImage.TYPE_INT_ARGB);
-	private Render3D render = new Render3D();
+	public Render3D render = new Render3D();
 	public Graphics2D g2d = frame.createGraphics();
+	public final Color defColor = new Color(100, 100, 100, 100);
 
 	// public Point3D[] points = {// Comment
 	// new Point3D(-1.0, -1.0, -1.0), new Point3D(-1.0, -1.0, 1.0), // Comment
@@ -84,17 +87,24 @@ public class Panel extends JPanel implements Runnable {
 		this.setPreferredSize(size);
 		this.addMouseMotionListener(mh);
 		this.addMouseListener(mh);
+		this.addMouseWheelListener(mh);
 		this.loadGame();
 		this.startGameThread();
 
 	}
 	public void renderFrame() {
 		render.renderScence(this, frame, objs);
+		objs.get(0).focused = true;
 
 		for (int o = 0; o < objs.size(); o++) {
 			if (objs.get(o).drawOutline) {
-				render.renderWireFrame(this, objs.get(o), g2d, objs.get(o).toCamSpaceMat);
+				render.renderWireFrame(this, objs.get(o), g2d, objs.get(o).toCamSpaceMat,
+						Color.black);
 
+			}
+			if (objs.get(o).focused) {
+				render.renderWireFrame(this, objs.get(o), g2d, objs.get(o).toCamSpaceMat,
+						Color.orange);
 			}
 			objs.get(o).drawOutline = false;
 		}
@@ -126,12 +136,13 @@ public class Panel extends JPanel implements Runnable {
 		// faces.add(fileLoad.getFaces());
 
 		objs.add(new Obj(fileLoad.getPoints(), fileLoad.getFaces(), new Double[]{-1.0, -1.0, 2.0},
-				new Double[]{0.0, 0.0, 0.0}, new Double[]{scaleFactor, scaleFactor, scaleFactor}));
+				new Double[]{0.0, 0.0, 0.0},
+				new Double[]{scaleFactor / 2, scaleFactor / 2, scaleFactor / 2}));
 
 		fileLoad.setFile(new File("assets\\primitives\\cube.obj")).load();
 
 		objs.add(new Obj(fileLoad.getPoints(), fileLoad.getFaces(), new Double[]{0.0, -1.0, 2.0},
-				new Double[]{0.0, 0.0, 0.0}, new Double[]{1.0, 1.0, 1.0}));
+				new Double[]{0.0, 0.0, 0.0}, new Double[]{scaleFactor, scaleFactor, scaleFactor}));
 		// System.out.println("fineshed loading game");
 		// System.out.println(faces.get(0).length);
 
@@ -142,6 +153,11 @@ public class Panel extends JPanel implements Runnable {
 		keys.update();
 
 		rot += slow;
+
+		// objs.get(0).translationVec = viewObject.translationVec;
+		// objs.get(0).rotationVec = viewObject.rotationVec;
+
+		// nearPlane = nearPlaneFinal * zoomScale;
 		// System.out.println(mh.m.x + ", " + mh.m.y);
 		// obj.rotate(rot, rot / 2, 0.0);
 		// obj.translationVec[2] += sn low;
@@ -201,15 +217,22 @@ public class Panel extends JPanel implements Runnable {
 		gameThread.start();
 	}
 	public Point2D projectionA(Point3D point) {
-		return new Point2D(MathUtil.pCord(point.x, FOV, point.z) * 100 + 250,
-				MathUtil.pCord(point.y, FOV, point.z) * 100 + 250);
+		return new Point2D(MathUtil.pCord(point.x, FOV, point.z) * zoomScale + 250,
+				MathUtil.pCord(point.y, FOV, point.z) * zoomScale + 250);
 	}
 	public Double[] projectionA(Double[] point3D) {
-		return new Double[]{MathUtil.pCord(point3D[0], FOV, point3D[2]) * 100 + 250,
-				MathUtil.pCord(point3D[1], FOV, point3D[2]) * 100 + 250};
+		return new Double[]{
+				MathUtil.pCord(point3D[0], FOV, point3D[3]) * zoomScale + size.width / 2,
+				MathUtil.pCord(point3D[1], FOV, point3D[3]) * zoomScale + size.height / 2};
 	}
 	public Point2D projectionB(Point3D point) {
-		return new Point2D(point.x * 100 + size.width / 2, point.y * 100 + size.height / 2);
+		return new Point2D(point.x * zoomScale + size.width / 2,
+				point.y * zoomScale + size.height / 2);
+	}
+	public Double[] projectionB(Double[] point4D) {
+		return new Double[]{(point4D[0] / point4D[3]) * zoomScale + size.width / 2,
+				(point4D[1] / point4D[3]) * zoomScale + size.height / 2, point4D[2] / point4D[3],
+				point4D[3]};
 	}
 	public void reportError(String error, int value) {
 

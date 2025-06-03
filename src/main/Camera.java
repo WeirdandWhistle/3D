@@ -49,9 +49,9 @@ public class Camera {
 		viewMat4[0][2] = w[0];
 		viewMat4[1][2] = w[1];
 		viewMat4[2][2] = w[2];
-		viewMat4[3][0] = MathUtil.dot(u, position, -1);
-		viewMat4[3][1] = MathUtil.dot(v, position, -1);
-		viewMat4[3][2] = MathUtil.dot(w, position, -1);
+		viewMat4[3][0] = -MathUtil.dot(u, position);
+		viewMat4[3][1] = -MathUtil.dot(v, position);
+		viewMat4[3][2] = -MathUtil.dot(w, position);
 	}
 	public void setViewTarget(Double[] position, Double[] target, Double[] up) {
 		if (up == null) {
@@ -60,7 +60,7 @@ public class Camera {
 		setViewDirection(position, MathUtil.vec3.sub(target, position), up);
 
 	}
-	public void setViewXYZ(Double[] position, Double[] rotation) {
+	public void setViewYXZ(Double[] position, Double[] rotation) {
 		final Double c3 = Math.cos(rotation[2]);
 		final Double s3 = Math.sin(rotation[2]);
 		final Double c2 = Math.cos(rotation[0]);
@@ -80,9 +80,9 @@ public class Camera {
 		viewMat4[0][2] = w[0];
 		viewMat4[1][2] = w[1];
 		viewMat4[2][2] = w[2];
-		viewMat4[3][0] = MathUtil.dot(u, position, -1);
-		viewMat4[3][1] = MathUtil.dot(v, position, -1);
-		viewMat4[3][2] = MathUtil.dot(w, position, -1);
+		viewMat4[3][0] = -MathUtil.dot(u, position);
+		viewMat4[3][1] = -MathUtil.dot(v, position);
+		viewMat4[3][2] = -MathUtil.dot(w, position);
 	}
 
 }

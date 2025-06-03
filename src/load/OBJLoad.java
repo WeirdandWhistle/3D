@@ -44,7 +44,7 @@ public class OBJLoad {
 			ArrayList<Face> face = new ArrayList<>();
 			System.out.println(file);
 			while ((line = read.readLine()) != null) {
-				System.out.println(line);
+				// System.out.println(line);
 
 				target = Database.getTarget(line);
 				body = line.replaceFirst(target, "").trim();

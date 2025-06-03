@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import libs.MathUtil;
 import libs.Struct.Face;
 import libs.Struct.Obj;
-import libs.Struct.Pixel;
 import libs.Struct.Point3D;
 import libs.Util;
 
@@ -26,6 +25,7 @@ public class Render3D {
 		long timeBegin = System.currentTimeMillis();
 		long timeEnd = System.currentTimeMillis();
 		Graphics2D g2d = frame.createGraphics();
+		// System.out.println("ok then");
 
 		g2d.setColor(Color.PINK);
 
@@ -35,26 +35,37 @@ public class Render3D {
 		// "," +
 		// cam.pos.z);
 		// MathUtil.Mat.print(obj.transformMat);
-		p.cam.setViewXYZ(p.viewObject.translationVec, p.viewObject.rotationVec);
+		p.cam.setViewYXZ(p.viewObject.translationVec, p.viewObject.rotationVec);
+		// p.cam.setViewTarget(p.viewObject.translationVec,
+		// p.viewObject.rotationVec, null);
 
 		// MathUtil.Mat.print("paint: ", mat);
 		// cam.orthographicProjection(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
-		p.cam.perspectiveProjection(Math.toRadians(45), (double) p.size.width / p.size.height,
-				p.nearPlane, p.farPlane);
+		// System.out.println(p.scaleTex);
+		p.cam.perspectiveProjection(Math.toRadians(p.scaleTex),
+				(double) p.size.width / p.size.height, p.nearPlane, p.farPlane);
 
 		Double[][] projectionView = MathUtil.Mat.multi(p.cam.getView(), p.cam.getProjection());
+		// Double[][] projectionView = MathUtil.Mat.multi(p.cam.getProjection(),
+		// p.cam.getView());
 
-		Pixel zBuffer[][] = new Pixel[p.size.width][p.size.height];
+		// MathUtil.Mat.print(projectionView);
+
+		Double zBuffer[][] = new Double[p.size.width][p.size.height];
+		int[][] rgb = new int[p.size.width][p.size.height];
 		for (int x = 0; x < zBuffer.length; x++) {
 			for (int y = 0; y < zBuffer[0].length; y++) {
-				zBuffer[x][y] = new Pixel(10000.0, new Color(100, 100, 100, 100)); // Initiali
+				zBuffer[x][y] = 10000.0; // Initiali
+				rgb[x][y] = p.defColor.getRGB();
 			}
 		}
-
+		// System.out.println("ok then");
+		// timeBegin = System.currentTimeMillis();
 		for (int o = 0; o < objs.size(); o++) {
 
 			Double[][] mat = objs.get(o).mat4();
 			mat = MathUtil.Mat.multi(mat, projectionView);
+			// mat = projectionView;
 
 			objs.get(o).toCamSpaceMat = mat;
 
@@ -66,20 +77,18 @@ public class Render3D {
 			// z-value)
 
 			if (objs.get(o).points != null) {
-				Pixel[][] runningZed = (Pixel[][]) Util.popArray2Dzb(
-						new Pixel(1000.0, new Color(100, 100, 100, 100)), p.size.width,
-						p.size.height);
 
 				Face[] polys = objs.get(o).faces;
 				if (polys.length > 0) {
 
 					// System.out.println(polys[6]);
-					// timeBegin = System.currentTimeMillis();
+
 					int f = 0;
 					for (Face face : polys) {
+						// timeBegin = System.currentTimeMillis();
 						// System.out.println(k);
 
-						renerPolygon(p, frame, face, objs.get(o).points, mat, runningZed,
+						renerPolygon(p, frame, face, objs.get(o).points, mat, zBuffer, rgb,
 								objs.get(o), f);
 
 						// runningZed = Util.comparePixelArray(runningZed,
@@ -87,35 +96,52 @@ public class Render3D {
 
 						// Util.printZBuffer("runningZed", runningZed);
 						f++;
+						// timeEnd = System.currentTimeMillis();
+						// System.out.println(f + " time took to render: " +
+						// (timeEnd - timeBegin));
 					}
-					// timeEnd = System.currentTimeMillis();
 
 				}
-				zBuffer = Util.comparePixelArray(zBuffer, runningZed);
+				// zBuffer = Util.comparePixelArray(zBuffer, runningZed);
 			}
 
-		}
-
-		// timeBegin = System.currentTimeMillis();
-		// Color defaultColor = new Color(100, 100, 100, 10);
-		for (int x = 0; x < zBuffer.length; x++) {
-			for (int y = 0; y < zBuffer[0].length; y++) {
-				if (zBuffer[x][y] != null) {
-					// g2d.setColor();
-					// g2d.setColor(Color.yellow);
-					frame.setRGB(x, y,
-							(zBuffer[x][y].zedBuffer > 10000 || zBuffer[x][y].zedBuffer < 0
-									? new Color(100, 100, 100, 0)
-									: zBuffer[x][y].color).getRGB());
-
-				} else {
-					p.reportError("raserization zBuffer null", 1000);
-				}
-			}
 		}
 		// timeEnd = System.currentTimeMillis();
-		// System.out.println("time took to render: " + (timeEnd -
-		// timeBegin));
+		// System.out.println("ok then");
+		// timeBegin = System.currentTimeMillis();
+		// Color defaultColor = new Color(100, 100, 100, 10);
+		// g2d.setColor(p.defColor);
+		// g2d.fillRect(0, 0, p.size.width, p.size.height);
+
+		for (int x = 0; x < rgb.length; x++) {
+			frame.setRGB(x, 0, 1, p.size.height, rgb[x], 0, 1);
+		}
+
+		// for (int x = 0; x < zBuffer.length; x++) {
+		// for (int y = 0; y < zBuffer[0].length; y++) {
+		// if (zBuffer[x][y] != null) {
+		// g2d.setColor();
+		// g2d.setColor(Color.yellow);
+
+		// if (!(zBuffer[x][y].zedBuffer > 10000 || zBuffer[x][y].zedBuffer <
+		// 0)) {
+		// frame.setRGB(x, y, zBuffer[x][y].color.getRGB());
+		// }
+
+		// frame.setRGB(x, y,
+		// (zBuffer[x][y].zedBuffer > 10000 || zBuffer[x][y].zedBuffer <
+		// 0
+		// ? new Color(100, 100, 100, 0)
+		// : zBuffer[x][y].color).getRGB());
+
+		// } else {
+		// p.reportError("raserization zBuffer null", 1000);
+		// }
+		// }
+		// }
+		// System.out.println("ok then");
+		timeEnd = System.currentTimeMillis();
+		// System.out.println("time took to render: " + (timeEnd - timeBegin));
 		// System.out.println("currentThread: " + Thread.currentThread());
 		// System.out.println("size of zBufer " + (zBuffer.length *
 		// zBuffer[0].length));
@@ -124,17 +150,50 @@ public class Render3D {
 
 	}
 
-	public Pixel[][] renerPolygon(Panel p, BufferedImage frame, Face face, Point3D[] points,
-			Double[][] mat, Pixel[][] zBuffer, Obj obj, int f) {
-		Double[][] screenPoints = new Double[face.indices.length][2];
+	public void renerPolygon(Panel p, BufferedImage frame, Face face, Point3D[] points,
+			Double[][] mat, Double[][] zBuffer, int[][] rgb, Obj obj, int f) {
+		Double[][] screenPoints = new Double[face.indices.length][3];
 		Double avgZ = 0.0;
 
 		for (int i = 0; i < face.indices.length; i++) {
 			Double[][] affterCamPos = MathUtil.Mat.multi(points[face.getIndex(i)].getMat(), mat);
 
-			screenPoints[i] = p.projectionA(affterCamPos[0]);
+			// Double[] clipPoint = affterCamPos[0];
+			// double x_ndc = clipPoint[0] / clipPoint[3]; // divide by w
+			// double y_ndc = clipPoint[1] / clipPoint[3];
+			// double z_ndc = clipPoint[2] / clipPoint[3]; // for z-buffer
+			//
+			// double x_screen = (x_ndc + 1) * 0.5 * p.size.width;
+			// double y_screen = (1 - y_ndc) * 0.5 * p.size.height;
+			//
+			// screenPoints[i] = new Double[]{x_screen, y_screen};
+			// avgZ += z_ndc; // use this for depth comparison!
 
-			avgZ += affterCamPos[0][2];
+			// screenPoints[i] = p.projectionA(affterCamPos[0]);
+			screenPoints[i] = affterCamPos[0];
+
+			screenPoints[i][0] /= affterCamPos[0][3];
+			screenPoints[i][1] /= affterCamPos[0][3];
+			screenPoints[i][2] /= affterCamPos[0][3];
+
+			screenPoints[i][0] *= p.zoomScale;
+			screenPoints[i][1] *= p.zoomScale;
+
+			screenPoints[i][0] += p.size.width / 2;
+			screenPoints[i][1] += p.size.height / 2;
+			// System.out.println(affterCamPos[0][2]);
+
+			//
+			// screenPoints[i][0] /= affterCamPos[0][3];
+			// screenPoints[i][1] /= affterCamPos[0][3];
+			// screenPoints[i][2] /= affterCamPos[0][3];
+			//
+			// screenPoints[i][0] = (screenPoints[i][0] + 1) * 0.5 *
+			// p.size.width;
+			// screenPoints[i][1] = (1 - screenPoints[i][0]) * 0.5 *
+			// p.size.height;
+			//
+			avgZ += affterCamPos[0][3];
 		}
 		avgZ /= face.indices.length;
 
@@ -323,7 +382,7 @@ public class Render3D {
 
 		for (int x = 0; x < filledPixels.length; x++) {
 			for (int y = 0; y < filledPixels[0].length; y++) {
-				if (filledPixels[x][y] == 1 && (zBuffer[x][y].zedBuffer > avgZ)) {
+				if (filledPixels[x][y] == 1 && (zBuffer[x][y] > avgZ)) {
 					if (img != null) {
 
 						// gets the uv cords relitive
@@ -374,17 +433,19 @@ public class Render3D {
 						// System.out.println("x:" + getX + ", y:" + getY);
 						// (-getX) + face.getImg().getWidth() - 1
 						// (-getY) + face.getImg().getHeight() - 1)
-						zBuffer[x][y] = new Pixel(avgZ, new Color(img.getRGB(getX, getY)));
+						zBuffer[x][y] = avgZ;
+						rgb[x][y] = img.getRGB(getX, getY);
 					} else {
-						zBuffer[x][y] = new Pixel(avgZ, face.getColor());
+						zBuffer[x][y] = avgZ;
+						rgb[x][y] = face.getColor().getRGB();
 					}
 				}
 			}
 		}
-		return zBuffer;
+		return;
 
 	}
-	public void renderWireFrame(Panel p, Obj obj, Graphics2D g2d, Double[][] mat) {
+	public void renderWireFrame(Panel p, Obj obj, Graphics2D g2d, Double[][] mat, Color color) {
 		// for (int i = 0; i < edges.length; i++) {
 		// Point3D startPoint = obj.points[edges[i].start];
 		// Point3D endPoint = obj.points[edges[i].end];
@@ -410,17 +471,17 @@ public class Render3D {
 			// if (obj.faces[i].drawOutline) {
 			// System.out.println("draw frame:" + i);
 			// }
-			obj.faces[i].drawOutline = false;
+
 			for (int j = 1; j < obj.faces[i].indices.length; j++) {
 				Double[][] Point1 = MathUtil.Mat
 						.multi(obj.points[obj.faces[i].getIndex(j)].getMat(), mat);
 				Double[][] Point2 = MathUtil.Mat
 						.multi(obj.points[obj.faces[i].getIndex(j - 1)].getMat(), mat);
 
-				Double[] p1 = p.projectionA(Point1[0]);
-				Double[] p2 = p.projectionA(Point2[0]);
+				Double[] p1 = p.projectionB(Point1[0]);
+				Double[] p2 = p.projectionB(Point2[0]);
 
-				g2d.setColor(Color.black);
+				g2d.setColor(color);
 				// g2d.setStroke(new BasicStroke(2));
 				g2d.drawLine(Util.round(p1[0]), Util.round(p1[1]), Util.round(p2[0]),
 						Util.round(p2[1]));
@@ -432,10 +493,10 @@ public class Render3D {
 					obj.points[obj.faces[i].getIndex(obj.faces[i].indices.length - 1)].getMat(),
 					mat);
 
-			Double[] p1 = p.projectionA(Point1[0]);
-			Double[] p2 = p.projectionA(Point2[0]);
+			Double[] p1 = p.projectionB(Point1[0]);
+			Double[] p2 = p.projectionB(Point2[0]);
 
-			g2d.setColor(Color.black);
+			g2d.setColor(color);
 			// g2d.setStroke(new BasicStroke(2));
 			g2d.drawLine(Util.round(p1[0]), Util.round(p1[1]), Util.round(p2[0]),
 					Util.round(p2[1]));
