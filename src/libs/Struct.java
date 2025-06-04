@@ -9,7 +9,7 @@ public class Struct {
 		public Double[] translationVec, scaleVec, rotationVec;
 		public Point3D[] points;
 		public Face[] faces;
-		public boolean drawOutline, focused = false;
+		public boolean hoverOver, focused = false;
 		// public Double rotaion = 0.0;
 
 		public Obj(Point3D[] points) {

@@ -181,7 +181,11 @@ public class Render3D {
 
 			screenPoints[i][0] += p.size.width / 2;
 			screenPoints[i][1] += p.size.height / 2;
-			// System.out.println(affterCamPos[0][2]);
+			// System.out.println(affterCamPos[0][3]);
+			if (affterCamPos[0][3] < 0) {
+				System.out.println("w culling!");
+				return;
+			}
 
 			//
 			// screenPoints[i][0] /= affterCamPos[0][3];
@@ -193,14 +197,16 @@ public class Render3D {
 			// screenPoints[i][1] = (1 - screenPoints[i][0]) * 0.5 *
 			// p.size.height;
 			//
-			avgZ += affterCamPos[0][3];
+			// avgZ += affterCamPos[0][2];
+
+			avgZ = Math.max(avgZ, affterCamPos[0][3]);
 		}
-		avgZ /= face.indices.length;
+		// avgZ /= face.indices.length;
 
 		Polygon poly = Util.Poly.fromDouble(screenPoints);
 		// face.drawOutline = false;
 		if (poly.contains(p.mh.m)) {
-			obj.drawOutline = true;
+			obj.hoverOver = true;
 			// face.drawOutline = true;
 			// System.out.println("polgon:" + f);
 		}
@@ -477,6 +483,10 @@ public class Render3D {
 						.multi(obj.points[obj.faces[i].getIndex(j)].getMat(), mat);
 				Double[][] Point2 = MathUtil.Mat
 						.multi(obj.points[obj.faces[i].getIndex(j - 1)].getMat(), mat);
+
+				if (Point1[0][3] < 0 || Point2[0][3] < 0) {
+					return;
+				}
 
 				Double[] p1 = p.projectionB(Point1[0]);
 				Double[] p2 = p.projectionB(Point2[0]);

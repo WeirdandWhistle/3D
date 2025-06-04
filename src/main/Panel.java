@@ -97,7 +97,7 @@ public class Panel extends JPanel implements Runnable {
 		objs.get(0).focused = true;
 
 		for (int o = 0; o < objs.size(); o++) {
-			if (objs.get(o).drawOutline) {
+			if (objs.get(o).hoverOver) {
 				render.renderWireFrame(this, objs.get(o), g2d, objs.get(o).toCamSpaceMat,
 						Color.black);
 
@@ -106,7 +106,7 @@ public class Panel extends JPanel implements Runnable {
 				render.renderWireFrame(this, objs.get(o), g2d, objs.get(o).toCamSpaceMat,
 						Color.orange);
 			}
-			objs.get(o).drawOutline = false;
+			objs.get(o).hoverOver = false;
 		}
 		// render.renderWireFrame(this, edges, obj, g2d, mat);
 
@@ -141,7 +141,7 @@ public class Panel extends JPanel implements Runnable {
 
 		fileLoad.setFile(new File("assets\\primitives\\cube.obj")).load();
 
-		objs.add(new Obj(fileLoad.getPoints(), fileLoad.getFaces(), new Double[]{0.0, -1.0, 2.0},
+		objs.add(new Obj(fileLoad.getPoints(), fileLoad.getFaces(), new Double[]{0.0, 0.0, 0.0},
 				new Double[]{0.0, 0.0, 0.0}, new Double[]{scaleFactor, scaleFactor, scaleFactor}));
 		// System.out.println("fineshed loading game");
 		// System.out.println(faces.get(0).length);

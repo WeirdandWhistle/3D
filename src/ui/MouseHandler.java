@@ -74,7 +74,7 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		System.out.println("mouse:" + e.getWheelRotation());
 
-		p.viewObject.translationVec[0] += e.getWheelRotation();
+		p.zoomScale += e.getWheelRotation();
 		System.out.println("zoomScale:" + p.zoomScale);
 
 	}
