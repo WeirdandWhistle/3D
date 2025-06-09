@@ -83,6 +83,9 @@ public class Struct {
 		public void rotate(Double x, Double y, Double z) {
 			rotationVec = new Double[]{x, y, z};
 		}
+		public Double[] worldPoint(int index) {
+			return MathUtil.Mat.multi(points[index].getMat(), mat4())[0];
+		}
 	}
 
 	public static class Point3D {

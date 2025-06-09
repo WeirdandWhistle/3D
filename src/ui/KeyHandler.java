@@ -9,7 +9,8 @@ import main.Panel;
 
 public class KeyHandler implements KeyListener {
 
-	public boolean w, a, s, d, shift, crtl, space, up, down, left, right, tab, q, e, i, j, k, l;
+	public boolean w, a, s, d, shift, crtl, space, up, down, left, right, tab, q, e, i, j, k, l, u,
+			o;
 	private Panel p;
 	private final Double baseMoveSpeed = 0.1;
 	private Double moveSpeed = baseMoveSpeed;
@@ -97,7 +98,14 @@ public class KeyHandler implements KeyListener {
 			// "moveDIr: " + moveDir[0] + ", " + moveDir[1] + ", " + moveDir[2]
 			// + ", ");
 		}
-		moveOBJ(p.objs.get(0));
+
+		if (u || i || o || l || k || j) {
+			for (Obj obj : p.objs) {
+				if (obj.focused) {
+					moveOBJ(obj);
+				}
+			}
+		}
 	}
 	public void lookVec3(Double[] vec3, double lookspeed) {
 		if (MathUtil.dot(vec3, vec3) > 0) {
@@ -112,6 +120,7 @@ public class KeyHandler implements KeyListener {
 		Double[] moveVec = {0.0, 0.0, 0.0};
 		Double[] forawrdDir = MathUtil.vec3.forwardDirTo90(p.viewObject.rotationVec[1]);
 		Double[] rightDir = {forawrdDir[2], 0.0, -forawrdDir[0]};
+		Double[] upDir = {0.0, -1.0, 0.0};
 
 		// System.out.println("[0]" + forawrdDir[0] + ", [2]" + forawrdDir[2]);
 
@@ -126,6 +135,12 @@ public class KeyHandler implements KeyListener {
 		}
 		if (l) {
 			moveVec = MathUtil.vec3.add(moveVec, rightDir);
+		}
+		if (u) {
+			moveVec = MathUtil.vec3.add(moveVec, upDir);
+		}
+		if (o) {
+			moveVec = MathUtil.vec3.sub(moveVec, upDir);
 		}
 
 		if (MathUtil.dot(moveVec, moveVec) > 0) {
@@ -201,6 +216,12 @@ public class KeyHandler implements KeyListener {
 			case KeyEvent.VK_L :
 				this.l = toggle;
 				break;
+			case KeyEvent.VK_U :
+				this.u = toggle;
+				break;
+			case KeyEvent.VK_O :
+				this.o = toggle;
+				break;
 
 		}
 
@@ -263,6 +284,12 @@ public class KeyHandler implements KeyListener {
 				break;
 			case KeyEvent.VK_L :
 				this.l = toggle;
+				break;
+			case KeyEvent.VK_U :
+				this.u = toggle;
+				break;
+			case KeyEvent.VK_O :
+				this.o = toggle;
 				break;
 
 		}

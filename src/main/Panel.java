@@ -39,7 +39,8 @@ public class Panel extends JPanel implements Runnable {
 	public int t = 0;
 	public Double scaleTex = 45.0;
 
-	public Dimension size = new Dimension(1000, 1000);
+	public Dimension size = new Dimension(500, 500);
+	public Dimension drawSize = new Dimension(1000, 1000);
 	public Thread gameThread;
 
 	public Camera cam = new Camera();
@@ -50,7 +51,7 @@ public class Panel extends JPanel implements Runnable {
 			BufferedImage.TYPE_INT_ARGB);
 	public Render3D render = new Render3D();
 	public Graphics2D g2d = frame.createGraphics();
-	public final Color defColor = new Color(100, 100, 100, 100);
+	public final Color defColor = new Color(100, 100, 100, 255);
 
 	// public Point3D[] points = {// Comment
 	// new Point3D(-1.0, -1.0, -1.0), new Point3D(-1.0, -1.0, 1.0), // Comment
@@ -75,7 +76,7 @@ public class Panel extends JPanel implements Runnable {
 	public ArrayList<Obj> objs = new ArrayList<>();
 
 	// public Obj obj;
-	public OBJLoad fileLoad = new OBJLoad(new File("assets\\primitives\\cubeTexTest.obj"));
+	public OBJLoad fileLoad = new OBJLoad(new File("assets\\primitives\\cube.obj"));
 
 	public Panel() {
 		// cam.setViewDirection(new Double[]{0.0, 0.0, 0.0}, new Double[]{0.0,
@@ -84,7 +85,7 @@ public class Panel extends JPanel implements Runnable {
 		// cam.setViewTarget(new Double[]{-1.0, -2.0, 2.0}, new Double[]{0.0,
 		// 1.0, 0.0}, null);
 		this.setFocusTraversalKeysEnabled(false);
-		this.setPreferredSize(size);
+		this.setPreferredSize(drawSize);
 		this.addMouseMotionListener(mh);
 		this.addMouseListener(mh);
 		this.addMouseWheelListener(mh);
@@ -94,20 +95,7 @@ public class Panel extends JPanel implements Runnable {
 	}
 	public void renderFrame() {
 		render.renderScence(this, frame, objs);
-		objs.get(0).focused = true;
 
-		for (int o = 0; o < objs.size(); o++) {
-			if (objs.get(o).hoverOver) {
-				render.renderWireFrame(this, objs.get(o), g2d, objs.get(o).toCamSpaceMat,
-						Color.black);
-
-			}
-			if (objs.get(o).focused) {
-				render.renderWireFrame(this, objs.get(o), g2d, objs.get(o).toCamSpaceMat,
-						Color.orange);
-			}
-			objs.get(o).hoverOver = false;
-		}
 		// render.renderWireFrame(this, edges, obj, g2d, mat);
 
 	}
@@ -117,13 +105,14 @@ public class Panel extends JPanel implements Runnable {
 		// System.out.println(g)
 		// g.drawRect(0, 0, 300, 300);;
 		if (g != null) {
-			g2d.setColor(Color.black);
-			g2d.drawString(Integer.toString(displayFPS), 0, g.getFontMetrics().getHeight());
 
-			g.drawImage(frame, 0, 0, size.width, size.height, null);
+			g.drawImage(frame, 0, 0, drawSize.width, drawSize.height, null);
 
 			g2d.setColor(Color.white);
 			g2d.clearRect(0, 0, size.width, size.height);
+
+			g.setColor(Color.black);
+			g.drawString("FPS:" + displayFPS, 0, g.getFontMetrics().getHeight());
 			FPS++;
 		}
 
@@ -135,14 +124,27 @@ public class Panel extends JPanel implements Runnable {
 		// points.add(fileLoad.getPoints());
 		// faces.add(fileLoad.getFaces());
 
-		objs.add(new Obj(fileLoad.getPoints(), fileLoad.getFaces(), new Double[]{-1.0, -1.0, 2.0},
+		objs.add(new Obj(fileLoad.getPoints(), fileLoad.getFaces(), new Double[]{0.0, 0.0, 0.0},
+				new Double[]{0.0, 0.0, 0.0}, new Double[]{scaleFactor, scaleFactor, scaleFactor}));
+
+		fileLoad.setFile(new File("assets\\primitives\\cubeTexTest.obj")).load();
+
+		Double[][] mat = MathUtil.Mat.multi(objs.get(0).points[3].getMat(), objs.get(0).mat4());
+
+		Double x = mat[0][0];
+
+		MathUtil.Mat.print(mat);
+
+		System.out.println(x);
+
+		objs.add(new Obj(fileLoad.getPoints(), fileLoad.getFaces(), new Double[]{0.0, -1.0, 2.0},
 				new Double[]{0.0, 0.0, 0.0},
 				new Double[]{scaleFactor / 2, scaleFactor / 2, scaleFactor / 2}));
 
-		fileLoad.setFile(new File("assets\\primitives\\cube.obj")).load();
+		Double dif = objs.get(0).worldPoint(3)[2] - objs.get(1).worldPoint(0)[2];
+		System.out.println(dif);
 
-		objs.add(new Obj(fileLoad.getPoints(), fileLoad.getFaces(), new Double[]{0.0, 0.0, 0.0},
-				new Double[]{0.0, 0.0, 0.0}, new Double[]{scaleFactor, scaleFactor, scaleFactor}));
+		objs.get(1).translationVec[2] += dif;
 		// System.out.println("fineshed loading game");
 		// System.out.println(faces.get(0).length);
 
@@ -151,21 +153,25 @@ public class Panel extends JPanel implements Runnable {
 	public void update() {
 
 		keys.update();
+		mh.update();
 
-		rot += slow;
+		// objs.get(0).focused = true;
 
-		// objs.get(0).translationVec = viewObject.translationVec;
-		// objs.get(0).rotationVec = viewObject.rotationVec;
+		// g2d.setColor(Color.red);
+		// g2d.fillRect(0, 0, 100, 100);
 
-		// nearPlane = nearPlaneFinal * zoomScale;
-		// System.out.println(mh.m.x + ", " + mh.m.y);
-		// obj.rotate(rot, rot / 2, 0.0);
-		// obj.translationVec[2] += sn low;
-
-		// System.out.println("cam x:" + viewObject.rotationVec[0] + " y:" +
-		// viewObject.rotationVec[1]
-		// + " z:" + viewObject.rotationVec[2]);
-
+		for (int o = 0; o < objs.size(); o++) {
+			if (objs.get(o).hoverOver) {
+				render.renderWireFrame(this, objs.get(o), g2d, objs.get(o).toCamSpaceMat,
+						Color.black);
+				// System.out.println("here!");
+			}
+			if (objs.get(o).focused) {
+				render.renderWireFrame(this, objs.get(o), g2d, objs.get(o).toCamSpaceMat,
+						Color.orange);
+			}
+			objs.get(o).hoverOver = false;
+		}
 		t++;
 	}
 
@@ -188,9 +194,9 @@ public class Panel extends JPanel implements Runnable {
 				this.lastTime = System.currentTimeMillis();
 				FPS = 0;
 			}
-
-			update();
 			renderFrame();
+			update();
+
 			drawToScreen();
 
 			try {
@@ -230,8 +236,8 @@ public class Panel extends JPanel implements Runnable {
 				point.y * zoomScale + size.height / 2);
 	}
 	public Double[] projectionB(Double[] point4D) {
-		return new Double[]{(point4D[0] / point4D[3]) * zoomScale + size.width / 2,
-				(point4D[1] / point4D[3]) * zoomScale + size.height / 2, point4D[2] / point4D[3],
+		return new Double[]{(point4D[0] / point4D[3]) * zoomScale + (size.width / 2),
+				(point4D[1] / point4D[3]) * zoomScale + (size.height / 2), point4D[2] / point4D[3],
 				point4D[3]};
 	}
 	public void reportError(String error, int value) {

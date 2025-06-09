@@ -1,5 +1,6 @@
 package main;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
@@ -86,7 +87,9 @@ public class Render3D {
 					int f = 0;
 					for (Face face : polys) {
 						// timeBegin = System.currentTimeMillis();
-						// System.out.println(k);
+						// System.out
+						// .println("obj:" + o + ", face:" + f + ", color:" +
+						// face.getColor());
 
 						renerPolygon(p, frame, face, objs.get(o).points, mat, zBuffer, rgb,
 								objs.get(o), f);
@@ -153,7 +156,7 @@ public class Render3D {
 	public void renerPolygon(Panel p, BufferedImage frame, Face face, Point3D[] points,
 			Double[][] mat, Double[][] zBuffer, int[][] rgb, Obj obj, int f) {
 		Double[][] screenPoints = new Double[face.indices.length][3];
-		Double avgZ = 0.0;
+		Double avgZ = 10000.0;
 
 		for (int i = 0; i < face.indices.length; i++) {
 			Double[][] affterCamPos = MathUtil.Mat.multi(points[face.getIndex(i)].getMat(), mat);
@@ -170,6 +173,10 @@ public class Render3D {
 			// avgZ += z_ndc; // use this for depth comparison!
 
 			// screenPoints[i] = p.projectionA(affterCamPos[0]);
+			if (affterCamPos[0][3] < 0) {
+				// System.out.println("w culling!");
+				return;
+			}
 			screenPoints[i] = affterCamPos[0];
 
 			screenPoints[i][0] /= affterCamPos[0][3];
@@ -182,10 +189,10 @@ public class Render3D {
 			screenPoints[i][0] += p.size.width / 2;
 			screenPoints[i][1] += p.size.height / 2;
 			// System.out.println(affterCamPos[0][3]);
-			if (affterCamPos[0][3] < 0) {
-				System.out.println("w culling!");
-				return;
-			}
+
+			// Double vecLen = Math.sqrt(Math.pow(screenPoints[i][0], 2)
+			// + Math.pow(screenPoints[i][1], 2) + Math.pow(screenPoints[i][2],
+			// 2));
 
 			//
 			// screenPoints[i][0] /= affterCamPos[0][3];
@@ -197,15 +204,17 @@ public class Render3D {
 			// screenPoints[i][1] = (1 - screenPoints[i][0]) * 0.5 *
 			// p.size.height;
 			//
-			// avgZ += affterCamPos[0][2];
+			avgZ += affterCamPos[0][3];
+			// System.out.println("w:" + affterCamPos[0][3]);
+			// avgZ = Math.min(avgZ, vecLen);
 
-			avgZ = Math.max(avgZ, affterCamPos[0][3]);
 		}
-		// avgZ /= face.indices.length;
+		// System.out.println("----------------------------------------");
+		avgZ /= face.indices.length;
 
 		Polygon poly = Util.Poly.fromDouble(screenPoints);
 		// face.drawOutline = false;
-		if (poly.contains(p.mh.m)) {
+		if (poly.contains(p.mh.pm)) {
 			obj.hoverOver = true;
 			// face.drawOutline = true;
 			// System.out.println("polgon:" + f);
@@ -472,10 +481,13 @@ public class Render3D {
 		//
 		// }
 
+		// g2d.setColor(Color.red);
+		// g2d.fillRect(0, 0, 100, 100);
+
 		for (int i = 0; i < obj.faces.length; i++) {
 
 			// if (obj.faces[i].drawOutline) {
-			// System.out.println("draw frame:" + i);
+			// System.out.println("draw frame:" + i + color);
 			// }
 
 			for (int j = 1; j < obj.faces[i].indices.length; j++) {
@@ -485,14 +497,18 @@ public class Render3D {
 						.multi(obj.points[obj.faces[i].getIndex(j - 1)].getMat(), mat);
 
 				if (Point1[0][3] < 0 || Point2[0][3] < 0) {
+					// System.out.println("retunr:" + i);
 					return;
 				}
 
 				Double[] p1 = p.projectionB(Point1[0]);
 				Double[] p2 = p.projectionB(Point2[0]);
 
+				// System.out.println("p1 x" + p1[0] + ", y" + p1[1]);
+				// System.out.println("p2 x" + p2[0] + ", y" + p2[1]);
+
 				g2d.setColor(color);
-				// g2d.setStroke(new BasicStroke(2));
+				g2d.setStroke(new BasicStroke(2));
 				g2d.drawLine(Util.round(p1[0]), Util.round(p1[1]), Util.round(p2[0]),
 						Util.round(p2[1]));
 
