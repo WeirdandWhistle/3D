@@ -183,12 +183,13 @@ public class Panel extends JPanel implements Runnable {
 		while (gameThread != null) {
 
 			if (System.currentTimeMillis() > this.lastTime + 1000) {
-				// System.out.println("time: " + System.currentTimeMillis());
+
 				displayFPS = FPS;
 				String imError = this.throwError();
+				// System.out.println("err: " + imError);
 
 				if (imError != null && !imError.equals("none")) {
-					System.out.println(imError);
+					System.out.println("ERROR:" + imError);
 				}
 
 				this.lastTime = System.currentTimeMillis();
@@ -251,13 +252,15 @@ public class Panel extends JPanel implements Runnable {
 		}
 	}
 	public String throwError() {
+		String out = null;
 		if (error != null) {
 			// System.out.println("ERROR: " + error);
-			error = null;
+
 			errorVal = 0;
-			return error;
+			out = error;
+			error = null;
 		}
-		return null;
+		return out;
 	}
 
 }

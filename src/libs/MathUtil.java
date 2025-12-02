@@ -399,6 +399,22 @@ public class MathUtil {
 			System.out.println();
 		}
 	}
+	public static void printArray(Double[] arr) {
+		System.out.print("[ ");
+		for (Double num : arr) {
+			System.out.print(num + ", ");
+		}
+		System.out.print(" ]");
+		System.out.println();
+	}
+	public static void printArray(String name, Double[] arr) {
+		System.out.print(name + ": [ ");
+		for (Double num : arr) {
+			System.out.print(num + ", ");
+		}
+		System.out.print(" ]");
+		System.out.println();
+	}
 	public static double diff(double a, double b) {
 		double out;
 		if (a > b) {

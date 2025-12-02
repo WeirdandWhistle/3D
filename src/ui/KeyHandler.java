@@ -10,7 +10,7 @@ import main.Panel;
 public class KeyHandler implements KeyListener {
 
 	public boolean w, a, s, d, shift, crtl, space, up, down, left, right, tab, q, e, i, j, k, l, u,
-			o;
+			alt, o;
 	private Panel p;
 	private final Double baseMoveSpeed = 0.1;
 	private Double moveSpeed = baseMoveSpeed;
@@ -99,10 +99,60 @@ public class KeyHandler implements KeyListener {
 			// + ", ");
 		}
 
-		if (u || i || o || l || k || j) {
-			for (Obj obj : p.objs) {
-				if (obj.focused) {
-					moveOBJ(obj);
+		if (alt) {
+
+			// System.out.println("alt");
+
+			int objFocusedIndex = -1;
+
+			for (int i = 0; i < p.objs.size(); i++) {
+				if (p.objs.get(i).focused) {
+					if (objFocusedIndex == -1) {
+						objFocusedIndex = i;
+					} else {
+						System.out.println("error: to many focused items!");
+						p.reportError("too many focused objets to align", 20);
+						return;
+
+					}
+				}
+			}
+
+			// Double[] moveVec = {0.0, 0.0, 0.0};
+			Double[] checkVec = {0.0, 0.0, 0.0};
+			Double[] forwardVec = MathUtil.vec3.forwardDirTo90(p.viewObject.rotationVec[1]);
+			Double[] rightVec = {forwardVec[2], 0.0, -forwardVec[0]};
+			Double[] upVec = {0.0, -1.0, 0.0};
+
+			if (i) {
+				checkVec = forwardVec;
+			} else if (k) {
+				checkVec = MathUtil.vec3.scale(forwardVec, -1.0);
+			} else if (l) {
+				checkVec = rightVec;
+			} else if (j) {
+				checkVec = MathUtil.vec3.scale(rightVec, -1.0);
+			} else if (u) {
+				checkVec = upVec;
+			} else if (o) {
+				checkVec = MathUtil.vec3.scale(upVec, -1.0);
+			}
+
+			// MathUtil.printArray(checkVec);
+
+			int objCloseVecIndex = 0;
+
+			for (int i = 0; i < p.objs.size(); i++) {
+
+			}
+
+		} else {
+
+			if (o || i || l || u || k || j) {
+				for (Obj obj : p.objs) {
+					if (obj.focused) {
+						moveOBJ(obj);
+					}
 				}
 			}
 		}
@@ -222,6 +272,9 @@ public class KeyHandler implements KeyListener {
 			case KeyEvent.VK_O :
 				this.o = toggle;
 				break;
+			case KeyEvent.VK_ALT :
+				this.alt = toggle;
+				break;
 
 		}
 
@@ -290,6 +343,9 @@ public class KeyHandler implements KeyListener {
 				break;
 			case KeyEvent.VK_O :
 				this.o = toggle;
+				break;
+			case KeyEvent.VK_ALT :
+				this.alt = toggle;
 				break;
 
 		}
